@@ -1,6 +1,6 @@
-import { Login } from "./src/screens/Login";
+import NavigationRoutes from "@/routes";
 import "./src/styles/global.css";
 
 export default function App() {
-  return <Login />;
+  return <NavigationRoutes />;
 }
