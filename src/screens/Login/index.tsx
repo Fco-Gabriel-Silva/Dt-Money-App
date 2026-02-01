@@ -1,8 +1,5 @@
 import { DismissKeyboardView } from "@/components/DismissKeyboardView";
-import { PublicStackParamsList } from "@/routes/PublicRoutes";
-import { useNavigation } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { View } from "react-native";
 import { LoginForm } from "./LoginForm";
 import { AuthHeader } from "@/components/AuthHeader";
 
