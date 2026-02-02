@@ -35,6 +35,7 @@ export const LoginForm = () => {
     try {
       await handleAuthenticate(userData);
     } catch (error) {
+      console.log(error);
       if (error instanceof AxiosError) {
         console.log(error.response?.data);
       }
