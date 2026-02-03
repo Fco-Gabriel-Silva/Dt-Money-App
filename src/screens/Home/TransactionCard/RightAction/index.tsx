@@ -1,25 +1,20 @@
-import {
-  ActivityIndicator,
-  Modal,
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-} from "react-native";
+import { TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { FC, useState } from "react";
-import { useTransactionContext } from "@/context/transaction.context";
 import { DeleteModal } from "../DeleteModal";
-import { Transaction } from "@/shared/interfaces/transaction";
 import { useErrorHandler } from "@/shared/hooks/useErrorHandler";
 import { colors } from "@/shared/colors";
+import * as transactionService from "@/shared/services/dt-money/transaction.service";
+import { useSnackbarContext } from "@/context/snackbar.context";
 
-interface Props {
-  transaction: Transaction;
+interface Params {
+  transactionId: number;
 }
 
-export const RightAction: FC<Props> = ({ transaction }) => {
+export const RightAction: FC<Params> = ({ transactionId }) => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { notify } = useSnackbarContext();
 
   const showModal = () => {
     setModalVisible(true);
@@ -27,6 +22,24 @@ export const RightAction: FC<Props> = ({ transaction }) => {
 
   const hideModal = () => {
     setModalVisible(false);
+  };
+
+  const { handleError } = useErrorHandler();
+
+  const handleDeleteTransaction = async () => {
+    try {
+      setLoading(true);
+      await transactionService.deleteTransaction(transactionId);
+      notify({
+        message: "Transação deletada com sucesso",
+        messageType: "SUCCESS",
+      });
+      hideModal();
+    } catch (error) {
+      handleError(error, "Falha ao deletar transação");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -38,7 +51,12 @@ export const RightAction: FC<Props> = ({ transaction }) => {
       >
         <MaterialIcons name="delete-outline" color={colors.white} size={30} />
       </TouchableOpacity>
-      <DeleteModal visible={modalVisible} hideModal={hideModal} />
+      <DeleteModal
+        visible={modalVisible}
+        hideModal={hideModal}
+        handleDeleteTransaction={handleDeleteTransaction}
+        loading={loading}
+      />
     </>
   );
 };
