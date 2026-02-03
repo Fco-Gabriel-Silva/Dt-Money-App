@@ -9,6 +9,7 @@ import { Transaction } from "@/shared/interfaces/transaction";
 import clsx from "clsx";
 import { colors } from "@/shared/colors";
 import { RightAction } from "./RightAction";
+import { LeftAction } from "./LeftAction";
 
 interface Params {
   transaction: Transaction;
@@ -27,12 +28,12 @@ export const TransactionCard: FC<Params> = ({ transaction }) => {
         marginBottom: 16,
       }}
       overshootRight={false}
-      //   overshootLeft={false}
+      overshootLeft={false}
       //   friction={1}
       //   enableTrackpadTwoFingerGesture
       //   rightThreshold={20}
       renderRightActions={() => <RightAction transactionId={transaction.id} />}
-      //   renderLeftActions={() => <LeftAction transaction={transaction} />}
+      renderLeftActions={() => <LeftAction transaction={transaction} />}
     >
       <View className="h-[140] bg-background-tertiary rounded-[6] p-6">
         <Text className="text-white text-base">{transaction.description}</Text>
