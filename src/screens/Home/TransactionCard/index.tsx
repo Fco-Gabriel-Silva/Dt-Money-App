@@ -4,11 +4,11 @@ import { Text, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { format } from "date-fns";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
-// import { RightAction } from "./RightAction";
 // import { LeftAction } from "./LeftAction";
 import { Transaction } from "@/shared/interfaces/transaction";
 import clsx from "clsx";
 import { colors } from "@/shared/colors";
+import { RightAction } from "./RightAction";
 
 interface Params {
   transaction: Transaction;
@@ -26,12 +26,12 @@ export const TransactionCard: FC<Params> = ({ transaction }) => {
         width: "90%",
         marginBottom: 16,
       }}
-      //   overshootRight={false}
+      overshootRight={false}
       //   overshootLeft={false}
       //   friction={1}
       //   enableTrackpadTwoFingerGesture
       //   rightThreshold={20}
-      //   renderRightActions={() => <RightAction transaction={transaction} />}
+      renderRightActions={() => <RightAction transaction={transaction} />}
       //   renderLeftActions={() => <LeftAction transaction={transaction} />}
     >
       <View className="h-[140] bg-background-tertiary rounded-[6] p-6">
