@@ -52,6 +52,7 @@ export const BottomSheetProvider: FC<PropsWithChildren> = ({ children }) => {
       setIsOpen(false);
     }
   }, []);
+
   return (
     <BottomSheetContext.Provider
       value={{
