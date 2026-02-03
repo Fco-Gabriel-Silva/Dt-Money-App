@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import * as authService from "@/shared/services/dt-money/auth.service";
-import { IUser } from "@/shared/interfaces/https/user-interface";
+import { IUser } from "@/shared/interfaces/user-interface";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { IAuthenticateResponse } from "@/shared/interfaces/https/authenticate-response";
 
