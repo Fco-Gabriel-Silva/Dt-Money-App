@@ -36,10 +36,6 @@ export const SelectCategoryModal: FC<Props> = ({
     [selectedCategory, categories],
   );
 
-  const openModal = () => setShowModal(true);
-
-  const closeModal = () => setShowModal(false);
-
   return (
     <>
       <TouchableOpacity
