@@ -29,6 +29,7 @@ type TransactionTextType = {
   transactions: Transaction[];
   refreshTransactions: () => Promise<void>;
   loading: boolean;
+  loadMoreTransactions: () => void;
 };
 
 export const TransactionContext = createContext({} as TransactionTextType);
@@ -46,6 +47,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
     page: 1,
     perPage: 15,
     totalRows: 0,
+    totalPages: 0,
   });
 
   const refreshTransactions = async () => {
@@ -98,11 +100,17 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
         ...pagination,
         page,
         totalRows: transactionResponse.totalRows,
+        totalPages: transactionResponse.totalPages,
       });
       setLoading(false);
     },
     [pagination],
   );
+
+  const loadMoreTransactions = useCallback(() => {
+    if (loading || pagination.page >= pagination.totalPages) return;
+    fetchTransactions({ page: pagination.page + 1 });
+  }, [loading, pagination, fetchTransactions]);
 
   return (
     <TransactionContext.Provider
@@ -116,6 +124,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
         updateTransaction,
         refreshTransactions,
         loading,
+        loadMoreTransactions,
       }}
     >
       {children}

@@ -22,6 +22,7 @@ export const Home = () => {
     transactions,
     refreshTransactions,
     loading,
+    loadMoreTransactions,
   } = useTransactionContext();
   const { handleError } = useErrorHandler();
 
@@ -50,6 +51,8 @@ export const Home = () => {
         keyExtractor={({ id }) => `transaction-${id}`}
         renderItem={({ item }) => <TransactionCard transaction={item} />}
         ListHeaderComponent={ListHeader}
+        onEndReached={loadMoreTransactions}
+        onEndReachedThreshold={0.5}
         refreshControl={
           <RefreshControl
             refreshing={loading}
