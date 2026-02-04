@@ -50,7 +50,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
     totalPages: 0,
   });
 
-  const refreshTransactions = async () => {
+  const refreshTransactions = useCallback(async () => {
     const { page, perPage } = pagination;
 
     setLoading(true);
@@ -64,11 +64,11 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
     setPagination({
       ...pagination,
       page,
-      totalRows: transactionResponse.totalRows,
       totalPages: transactionResponse.totalPages,
+      totalRows: transactionResponse.totalRows,
     });
     setLoading(false);
-  };
+  }, [pagination]);
 
   const fetchCategories = async () => {
     const categories = await transactionService.getTransactionCategories();
