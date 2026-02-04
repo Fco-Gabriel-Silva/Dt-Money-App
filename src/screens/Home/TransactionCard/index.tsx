@@ -29,9 +29,6 @@ export const TransactionCard: FC<Params> = ({ transaction }) => {
       }}
       overshootRight={false}
       overshootLeft={false}
-      //   friction={1}
-      //   enableTrackpadTwoFingerGesture
-      //   rightThreshold={20}
       renderRightActions={() => <RightAction transactionId={transaction.id} />}
       renderLeftActions={() => <LeftAction transaction={transaction} />}
     >
