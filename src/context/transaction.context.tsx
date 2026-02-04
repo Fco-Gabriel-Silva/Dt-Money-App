@@ -43,6 +43,8 @@ type TransactionTextType = {
   loadings: Loadings;
   handleLoadings: (params: HandleLoadingParams) => void;
   pagination: Pagination;
+  setSearchText: (text: string) => void;
+  searchText: string;
 };
 
 export const TransactionContext = createContext({} as TransactionTextType);
@@ -52,6 +54,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
 }) => {
   const [categories, setCategories] = useState<TransactionCategory[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [searchText, setSearchText] = useState("");
   const [loadings, setLoadings] = useState<Loadings>({
     initial: false,
     refresh: false,
@@ -108,6 +111,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
       const transactionResponse = await transactionService.getTransactions({
         page,
         perPage: pagination.perPage,
+        searchText,
       });
 
       if (page === 1) {
@@ -127,7 +131,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
         totalPages: transactionResponse.totalPages,
       });
     },
-    [pagination],
+    [pagination, searchText],
   );
 
   const loadMoreTransactions = useCallback(() => {
@@ -150,6 +154,8 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
         handleLoadings,
         loadings,
         pagination,
+        setSearchText,
+        searchText,
       }}
     >
       {children}
