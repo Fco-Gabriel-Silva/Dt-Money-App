@@ -4,6 +4,7 @@ import { useTransactionContext } from "@/context/transaction.context";
 import { useErrorHandler } from "@/shared/hooks/useErrorHandler";
 import { useEffect } from "react";
 import {
+  ActivityIndicator,
   FlatList,
   RefreshControl,
   Text,
@@ -14,6 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ListHeader } from "./ListHeader";
 import { TransactionCard } from "./TransactionCard";
 import { EmptyList } from "./EmptyList";
+import { colors } from "@/shared/colors";
 
 export const Home = () => {
   const { handleLogout } = useAuthContext();
@@ -53,7 +55,7 @@ export const Home = () => {
   const handleLoadMoreTransactions = async () => {
     try {
       handleLoadings({ key: "loadMore", value: true });
-      await loadMoreTransactions();
+      await loadMoreTransactions;
     } catch (error) {
       handleError(error, "Falha ao buscar novas transações");
     } finally {
@@ -89,6 +91,14 @@ export const Home = () => {
         onEndReached={handleLoadMoreTransactions}
         ListEmptyComponent={loadings.initial ? null : EmptyList}
         onEndReachedThreshold={0.5}
+        ListFooterComponent={
+          loadings.loadMore ? (
+            <ActivityIndicator
+              color={colors["accent-brand-light"]}
+              size={"large"}
+            />
+          ) : null
+        }
         refreshControl={
           <RefreshControl
             refreshing={loadings.refresh}
