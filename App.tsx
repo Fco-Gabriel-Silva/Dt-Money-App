@@ -9,7 +9,7 @@ import { TransactionContextProvider } from "@/context/transaction.context";
 
 export default function App() {
   return (
-    <GestureHandlerRootView className="flex-1">
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <SnackbarContextProvider>
         <AuthContextProvider>
           <TransactionContextProvider>
