@@ -9,10 +9,7 @@ import {
   useState,
 } from "react";
 import * as transactionService from "@/shared/services/dt-money/transaction.service";
-import {
-  CreateTransactionInterface,
-  CreateTransactionInterfaceLocal,
-} from "@/shared/interfaces/https/create-transaction-request";
+import { CreateTransactionInterface } from "@/shared/interfaces/https/create-transaction-request";
 import { Transaction } from "@/shared/interfaces/transaction";
 import { TotalTransactions } from "@/shared/interfaces/total-transaction";
 import { UpdateTransactionInterface } from "@/shared/interfaces/https/update-transaction-request";
@@ -21,6 +18,8 @@ import {
   Pagination,
 } from "@/shared/interfaces/https/get-transactions-request";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { set } from "date-fns";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 const filtersInitialValues = {
   categoryIds: {},
@@ -52,9 +51,7 @@ interface HandleFiltersParams {
 type TransactionTextType = {
   fetchCategories: () => Promise<void>;
   categories: TransactionCategory[];
-  createTransaction: (
-    transaction: CreateTransactionInterfaceLocal,
-  ) => Promise<void>;
+  createTransaction: (transaction: CreateTransactionInterface) => Promise<void>;
   updateTransaction: (transaction: UpdateTransactionInterface) => Promise<void>;
   fetchTransactions: (params: FetchTransactionsParams) => Promise<void>;
   totalTransactions: TotalTransactions;
@@ -118,17 +115,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
       categoryIds,
     });
 
-    const getTransactions = await AsyncStorage.getItem("dt-money-transaction");
-
-    const localTransactions = getTransactions
-      ? JSON.parse(getTransactions)
-      : [];
-
-    const allTransactions = [...localTransactions, ...transactionResponse.data];
-
-    console.log(allTransactions);
-
-    setTransactions(allTransactions);
+    setTransactions(transactionResponse.data);
     setTotalTransactions(transactionResponse.totalTransactions);
     setPagination({
       ...pagination,
@@ -143,24 +130,8 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
     setCategories(categories);
   };
 
-  const createTransaction = async (
-    transaction: CreateTransactionInterfaceLocal,
-  ) => {
-    // await transactionService.createTransaction(transaction);
-
-    const getTransactions = await AsyncStorage.getItem("dt-money-transaction");
-
-    const localTransactions = getTransactions
-      ? JSON.parse(getTransactions)
-      : [];
-
-    const newTransactionsList = [...localTransactions, transaction];
-
-    await AsyncStorage.setItem(
-      "dt-money-transaction",
-      JSON.stringify(newTransactionsList),
-    );
-
+  const createTransaction = async (transaction: CreateTransactionInterface) => {
+    await transactionService.createTransaction(transaction);
     await refreshTransactions();
   };
 
@@ -175,27 +146,15 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
         page,
         perPage: pagination.perPage,
         searchText,
-        ...filters,
-        categoryIds,
       });
 
-      const getTransactions = await AsyncStorage.getItem(
-        "dt-money-transaction",
-      );
-
-      const localTransactions = getTransactions
-        ? JSON.parse(getTransactions)
-        : [];
-
-      const allTransactions = [
-        ...localTransactions,
-        ...transactionResponse.data,
-      ];
-
       if (page === 1) {
-        setTransactions(allTransactions);
+        setTransactions(transactionResponse.data);
       } else {
-        setTransactions((prevState) => [...prevState, ...allTransactions]);
+        setTransactions((prevState) => [
+          ...prevState,
+          ...transactionResponse.data,
+        ]);
       }
 
       setTotalTransactions(transactionResponse.totalTransactions);

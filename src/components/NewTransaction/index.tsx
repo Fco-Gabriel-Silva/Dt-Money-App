@@ -1,4 +1,7 @@
-import { CreateTransactionInterface } from "@/shared/interfaces/https/create-transaction-request";
+import {
+  CreateTransactionInterface,
+  CreateTransactionInterfaceLocal,
+} from "@/shared/interfaces/https/create-transaction-request";
 import { useState } from "react";
 import {
   TouchableOpacity,
@@ -20,7 +23,10 @@ import { ErrorMessage } from "../ErrorMessage";
 import { useTransactionContext } from "@/context/transaction.context";
 import { useErrorHandler } from "@/shared/hooks/useErrorHandler";
 
-type ValidationErrorsTypes = Record<keyof CreateTransactionInterface, string>;
+type ValidationErrorsTypes = Record<
+  keyof CreateTransactionInterfaceLocal,
+  string
+>;
 
 export const NewTransaction = () => {
   const { closeBottomSheet } = useBottomSheetContext();
@@ -29,12 +35,17 @@ export const NewTransaction = () => {
 
   const [loading, setLoading] = useState(false);
 
-  const [transaction, setTransaction] = useState<CreateTransactionInterface>({
-    description: "",
-    categoryId: 0,
-    typeId: 0,
-    value: 0,
-  });
+  const [transaction, setTransaction] =
+    useState<CreateTransactionInterfaceLocal>({
+      id: Date.now(),
+      description: "",
+      categoryId: 0,
+      typeId: 0,
+      value: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      isLocal: true,
+    });
 
   const [validationErrors, setValidationErrors] =
     useState<ValidationErrorsTypes>();
