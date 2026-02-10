@@ -9,10 +9,7 @@ import {
   useState,
 } from "react";
 import * as transactionService from "@/shared/services/dt-money/transaction.service";
-import {
-  CreateTransactionInterface,
-  CreateTransactionInterfaceLocal,
-} from "@/shared/interfaces/https/create-transaction-request";
+import { CreateTransactionInterface } from "@/shared/interfaces/https/create-transaction-request";
 import { Transaction } from "@/shared/interfaces/transaction";
 import { TotalTransactions } from "@/shared/interfaces/total-transaction";
 import { UpdateTransactionInterface } from "@/shared/interfaces/https/update-transaction-request";
@@ -21,6 +18,7 @@ import {
   Pagination,
 } from "@/shared/interfaces/https/get-transactions-request";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { transactionTypesLocal } from "@/shared/enums/transaction-types-local";
 
 const filtersInitialValues = {
   categoryIds: {},
@@ -52,9 +50,7 @@ interface HandleFiltersParams {
 type TransactionTextType = {
   fetchCategories: () => Promise<void>;
   categories: TransactionCategory[];
-  createTransaction: (
-    transaction: CreateTransactionInterfaceLocal,
-  ) => Promise<void>;
+  createTransaction: (transaction: CreateTransactionInterface) => Promise<void>;
   updateTransaction: (transaction: UpdateTransactionInterface) => Promise<void>;
   fetchTransactions: (params: FetchTransactionsParams) => Promise<void>;
   totalTransactions: TotalTransactions;
@@ -70,6 +66,7 @@ type TransactionTextType = {
   handleFilters: (params: HandleFiltersParams) => void;
   handleCategoryFilter: (categoryId: number) => void;
   resetFilter: () => Promise<void>;
+  syncTransaction: (transaction: Transaction) => Promise<void>;
 };
 
 export const TransactionContext = createContext({} as TransactionTextType);
@@ -126,8 +123,6 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
 
     const allTransactions = [...localTransactions, ...transactionResponse.data];
 
-    console.log(allTransactions);
-
     setTransactions(allTransactions);
     setTotalTransactions(transactionResponse.totalTransactions);
     setPagination({
@@ -143,9 +138,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
     setCategories(categories);
   };
 
-  const createTransaction = async (
-    transaction: CreateTransactionInterfaceLocal,
-  ) => {
+  const createTransaction = async (transaction: CreateTransactionInterface) => {
     // await transactionService.createTransaction(transaction);
 
     const getTransactions = await AsyncStorage.getItem("dt-money-transaction");
@@ -154,7 +147,37 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
       ? JSON.parse(getTransactions)
       : [];
 
-    const newTransactionsList = [...localTransactions, transaction];
+    const categoryFull = categories.find(
+      (c) => c.id === transaction.categoryId,
+    );
+
+    if (!categoryFull) {
+      console.error(
+        "Erro Crítico: Tentativa de criar transação com categoria inexistente na lista local.",
+      );
+      return;
+    }
+
+    const typeFull =
+      transaction.typeId === transactionTypesLocal.REVENUE.id
+        ? transactionTypesLocal.REVENUE
+        : transactionTypesLocal.EXPENSE;
+
+    const newTransactionFull: Transaction = {
+      id: Date.now(),
+      typeId: transaction.typeId,
+      categoryId: transaction.categoryId,
+      description: transaction.description,
+      value: transaction.value,
+      isLocal: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      deletedAt: null,
+      type: typeFull,
+      category: categoryFull,
+    };
+
+    const newTransactionsList = [newTransactionFull, ...localTransactions];
 
     await AsyncStorage.setItem(
       "dt-money-transaction",
@@ -249,6 +272,21 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
     });
   }, [pagination, searchText]);
 
+  const syncTransaction = async (transaction: Transaction) => {
+    await transactionService.createTransaction(transaction);
+
+    const filterTransactionsLocal = transactions.filter(
+      (t) => t.id !== transaction.id,
+    );
+
+    await AsyncStorage.setItem(
+      "dt-money-transaction",
+      JSON.stringify(filterTransactionsLocal),
+    );
+
+    refreshTransactions();
+  };
+
   return (
     <TransactionContext.Provider
       value={{
@@ -270,6 +308,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
         handleFilters,
         handleCategoryFilter,
         resetFilter,
+        syncTransaction,
       }}
     >
       {children}
