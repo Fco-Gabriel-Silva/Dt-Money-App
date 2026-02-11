@@ -81,31 +81,29 @@ export const Home = () => {
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-background-secondary">
-      <FlatList
-        className="bg-background-secondary"
-        data={transactions}
-        keyExtractor={({ id }) => `transaction-${id}`}
-        renderItem={({ item }) => <TransactionCard transaction={item} />}
-        ListHeaderComponent={ListHeader}
-        onEndReached={handleLoadMoreTransactions}
-        ListEmptyComponent={loadings.initial ? null : EmptyList}
-        onEndReachedThreshold={0.5}
-        ListFooterComponent={
-          loadings.loadMore ? (
-            <ActivityIndicator
-              color={colors["accent-brand-light"]}
-              size={"large"}
-            />
-          ) : null
-        }
-        refreshControl={
-          <RefreshControl
-            refreshing={loadings.refresh}
-            onRefresh={handleRefreshTransactions}
+    <FlatList
+      className="bg-background-secondary"
+      data={transactions}
+      keyExtractor={({ id }) => `transaction-${id}`}
+      renderItem={({ item }) => <TransactionCard transaction={item} />}
+      ListHeaderComponent={ListHeader}
+      onEndReached={handleLoadMoreTransactions}
+      ListEmptyComponent={loadings.initial ? null : EmptyList}
+      onEndReachedThreshold={0.5}
+      ListFooterComponent={
+        loadings.loadMore ? (
+          <ActivityIndicator
+            color={colors["accent-brand-light"]}
+            size={"large"}
           />
-        }
-      />
-    </SafeAreaView>
+        ) : null
+      }
+      refreshControl={
+        <RefreshControl
+          refreshing={loadings.refresh}
+          onRefresh={handleRefreshTransactions}
+        />
+      }
+    />
   );
 };
