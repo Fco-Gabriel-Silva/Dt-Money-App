@@ -76,6 +76,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
 }) => {
   const [categories, setCategories] = useState<TransactionCategory[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [localTransactions, setLocalTransactions] = useState<Transaction[]>([]);
   const [searchText, setSearchText] = useState("");
   const [filters, setFilters] = useState<Filters>(filtersInitialValues);
 
@@ -115,13 +116,14 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
       categoryIds,
     });
 
-    const getTransactions = await AsyncStorage.getItem("dt-money-transaction");
+    // const getTransactions = await AsyncStorage.getItem("dt-money-transaction");
 
-    const localTransactions = getTransactions
-      ? JSON.parse(getTransactions)
-      : [];
+    // const localTransactions = getTransactions
+    //   ? JSON.parse(getTransactions)
+    //   : [];
 
     const allTransactions = [...localTransactions, ...transactionResponse.data];
+    console.log(allTransactions);
 
     setTransactions(allTransactions);
     setTotalTransactions(transactionResponse.totalTransactions);
@@ -140,12 +142,6 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
 
   const createTransaction = async (transaction: CreateTransactionInterface) => {
     // await transactionService.createTransaction(transaction);
-
-    const getTransactions = await AsyncStorage.getItem("dt-money-transaction");
-
-    const localTransactions = getTransactions
-      ? JSON.parse(getTransactions)
-      : [];
 
     const categoryFull = categories.find(
       (c) => c.id === transaction.categoryId,
@@ -179,8 +175,10 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
 
     const newTransactionsList = [newTransactionFull, ...localTransactions];
 
+    setLocalTransactions(newTransactionsList);
+
     await AsyncStorage.setItem(
-      "dt-money-transaction",
+      "dt-money-transaction-local",
       JSON.stringify(newTransactionsList),
     );
 
@@ -203,7 +201,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
       });
 
       const getTransactions = await AsyncStorage.getItem(
-        "dt-money-transaction",
+        "dt-money-transaction-local",
       );
 
       const localTransactions = getTransactions
@@ -221,6 +219,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
         setTransactions((prevState) => [...prevState, ...allTransactions]);
       }
 
+      setLocalTransactions(localTransactions);
       setTotalTransactions(transactionResponse.totalTransactions);
       setPagination({
         ...pagination,
@@ -275,16 +274,18 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
   const syncTransaction = async (transaction: Transaction) => {
     await transactionService.createTransaction(transaction);
 
-    const filterTransactionsLocal = transactions.filter(
+    const filterTransactionsLocal = localTransactions.filter(
       (t) => t.id !== transaction.id,
     );
 
+    setLocalTransactions(filterTransactionsLocal);
+
     await AsyncStorage.setItem(
-      "dt-money-transaction",
+      "dt-money-transaction-local",
       JSON.stringify(filterTransactionsLocal),
     );
 
-    refreshTransactions();
+    await refreshTransactions();
   };
 
   return (
