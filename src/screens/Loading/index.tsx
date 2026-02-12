@@ -1,5 +1,5 @@
 import { useAuthContext } from "@/context/auth.context";
-import { colors } from "@/shared/colors";
+import { colors } from "@/styles/colors";
 import { FC, useEffect } from "react";
 import { ActivityIndicator, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";

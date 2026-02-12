@@ -2,12 +2,11 @@ import { FC, useState } from "react";
 import {
   TouchableOpacity,
   View,
-  Text,
   TextInput,
   ActivityIndicator,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { colors } from "@/shared/colors";
+import { colors } from "@/styles/colors";
 import { useBottomSheetContext } from "@/context/bottomsheet.context";
 import CurrencyInput from "react-native-currency-input";
 import * as Yup from "yup";
@@ -20,6 +19,7 @@ import { TransactionTypeSeletor } from "@/components/SelectType";
 import { transactionSchema } from "./schema";
 import { Transaction } from "@/shared/interfaces/transaction";
 import { UpdateTransactionInterface } from "@/shared/interfaces/https/update-transaction-request";
+import { Text } from "@/components/Text";
 
 type ValidationErrorsTypes = Record<keyof UpdateTransactionInterface, string>;
 
@@ -104,7 +104,7 @@ export const EditTransactionForm: FC<Params> = ({
         onPress={closeBottomSheet}
         className="w-full flex-row items-center justify-between"
       >
-        <Text className="text-white text-xl font-bold">Nova transação</Text>
+        <Text className="text-white text-xl font-heading">Nova transação</Text>
         <MaterialIcons name="close" color={colors.gray[700]} size={20} />
       </TouchableOpacity>
       <View className="flex-1 mt-8 mb-8">

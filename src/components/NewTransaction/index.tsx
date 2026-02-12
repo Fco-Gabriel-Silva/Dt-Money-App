@@ -3,12 +3,11 @@ import { useState } from "react";
 import {
   TouchableOpacity,
   View,
-  Text,
   TextInput,
   ActivityIndicator,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { colors } from "@/shared/colors";
+import { colors } from "@/styles/colors";
 import { useBottomSheetContext } from "@/context/bottomsheet.context";
 import CurrencyInput from "react-native-currency-input";
 import { TransactionTypeSeletor } from "../SelectType";
@@ -19,6 +18,7 @@ import { AppButton } from "../AppButton";
 import { ErrorMessage } from "../ErrorMessage";
 import { useTransactionContext } from "@/context/transaction.context";
 import { useErrorHandler } from "@/shared/hooks/useErrorHandler";
+import { Text } from "../Text";
 
 type ValidationErrorsTypes = Record<keyof CreateTransactionInterface, string>;
 
@@ -76,7 +76,7 @@ export const NewTransaction = () => {
         onPress={closeBottomSheet}
         className="w-full flex-row items-center justify-between"
       >
-        <Text className="text-white text-xl font-bold">Nova transação</Text>
+        <Text className="text-white text-xl font-heading">Nova transação</Text>
         <MaterialIcons name="close" color={colors.gray[700]} size={20} />
       </TouchableOpacity>
       <View className="flex-1 mt-8 mb-8">
@@ -85,7 +85,7 @@ export const NewTransaction = () => {
           placeholder="Descrição"
           placeholderTextColor={colors.gray[700]}
           value={transaction.description}
-          className="text-white text-lg h-[50px] bg-background-primary my-2 rounded-[6] pl-4"
+          className="font-sans text-white text-lg h-[50px] bg-background-primary my-2 rounded-[6] pl-4"
         />
 
         {validationErrors?.value && (
@@ -100,7 +100,7 @@ export const NewTransaction = () => {
           precision={2}
           minValue={0}
           onChangeValue={(value) => setTransactionData("value", value ?? 0)}
-          className="text-white text-lg h-[50px] bg-background-primary my-2 rounded-[6] pl-4"
+          className="text-white text-lg h-[50px] bg-background-primary my-2 rounded-[6] pl-4 font-sans"
         />
 
         {validationErrors?.value && (

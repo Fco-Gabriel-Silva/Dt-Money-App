@@ -9,7 +9,7 @@ import {
 } from "react";
 import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { TouchableWithoutFeedback, View } from "react-native";
-import { colors } from "@/shared/colors";
+import { colors } from "@/styles/colors";
 
 interface BottomSheetContextType {
   openBottomSheet: (content: React.ReactNode, index: number) => void;

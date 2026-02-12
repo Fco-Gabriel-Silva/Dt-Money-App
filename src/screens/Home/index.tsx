@@ -15,7 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ListHeader } from "./ListHeader";
 import { TransactionCard } from "./TransactionCard";
 import { EmptyList } from "./EmptyList";
-import { colors } from "@/shared/colors";
+import { colors } from "@/styles/colors";
 
 export const Home = () => {
   const { handleLogout } = useAuthContext();

@@ -1,16 +1,16 @@
 import { Control, Controller, FieldValues, Path } from "react-hook-form";
 import {
-  Text,
   TextInput,
   TextInputProps,
   TouchableOpacity,
   View,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { colors } from "@/shared/colors";
+import { colors } from "@/styles/colors";
 import { useRef, useState } from "react";
 import clsx from "clsx";
 import { ErrorMessage } from "../ErrorMessage";
+import { Text } from "../Text";
 
 interface AppInputParams<T extends FieldValues> extends TextInputProps {
   control: Control<T>;
@@ -48,7 +48,7 @@ export const AppInput = <T extends FieldValues>({
             {label && (
               <Text
                 className={clsx(
-                  "mb-2 mt-3 text-base",
+                  "mb-2 mt-3 text-base font-sans",
                   isFocused ? "text-accent-brand" : "text-gray-600",
                 )}
               >
@@ -69,7 +69,7 @@ export const AppInput = <T extends FieldValues>({
                 value={value}
                 onChangeText={onChange}
                 placeholderTextColor={colors.gray[700]}
-                className="flex-1 text-base text-gray-500"
+                className="font-sans flex-1 text-base text-gray-500"
                 onFocus={checkFocus}
                 onEndEditing={checkFocus}
                 secureTextEntry={showText}

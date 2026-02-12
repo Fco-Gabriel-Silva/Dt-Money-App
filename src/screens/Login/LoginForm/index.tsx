@@ -3,15 +3,14 @@ import { AppInput } from "@/components/AppInput";
 import { PublicStackParamsList } from "@/routes/PublicRoutes";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { useForm } from "react-hook-form";
-import { ActivityIndicator, Text, View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { schema } from "./schema";
 import { useAuthContext } from "@/context/auth.context";
-import { AxiosError } from "axios";
 import { useSnackbarContext } from "@/context/snackbar.context";
-import { AppError } from "@/shared/helpers/AppError";
 import { useErrorHandler } from "@/shared/hooks/useErrorHandler";
-import { colors } from "@/shared/colors";
+import { colors } from "@/styles/colors";
+import { Text } from "@/components/Text";
 
 export interface FormLoginParams {
   email: string;

@@ -1,7 +1,8 @@
+import { Text } from "@/components/Text";
 import { useTransactionContext } from "@/context/transaction.context";
-import { colors } from "@/shared/colors";
+import { colors } from "@/styles/colors";
 import Checkbox from "expo-checkbox";
-import { Text, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 
 export const CategoryFilter = () => {
   const { categories, filters, handleCategoryFilter } = useTransactionContext();
@@ -12,7 +13,7 @@ export const CategoryFilter = () => {
 
   return (
     <View className="mb-6">
-      <Text className="text-base font-medium mb-5 text-gray-600">
+      <Text className="text-base font-normal mb-5 text-gray-600">
         Categorias
       </Text>
       {categories.map(({ id, name }) => (

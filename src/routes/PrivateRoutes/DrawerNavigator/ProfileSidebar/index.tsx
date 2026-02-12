@@ -3,9 +3,10 @@ import {
   DrawerContentComponentProps,
   DrawerItemList,
 } from "@react-navigation/drawer";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { useAuthContext } from "@/context/auth.context";
+import { Text } from "@/components/Text";
 
 export const ProfileSidebar = (props: DrawerContentComponentProps) => {
   const { user } = useAuthContext();

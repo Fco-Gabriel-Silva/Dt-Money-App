@@ -4,7 +4,7 @@ import { FC } from "react";
 import { View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
 import { Transaction } from "@/shared/interfaces/transaction";
-import { colors } from "@/shared/colors";
+import { colors } from "@/styles/colors";
 import { EditTransactionForm } from "./EditTransactionForm";
 
 interface Params {

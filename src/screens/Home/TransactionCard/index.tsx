@@ -1,17 +1,18 @@
 import { TransactionTypes } from "@/shared/enums/transaction-types";
 import { FC, useState } from "react";
-import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, TouchableOpacity, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { format } from "date-fns";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import { Transaction } from "@/shared/interfaces/transaction";
 import clsx from "clsx";
-import { colors } from "@/shared/colors";
+import { colors } from "@/styles/colors";
 import { RightAction } from "./RightAction";
 import { LeftAction } from "./LeftAction";
 import { moneyMapper } from "@/shared/utils/money-mapper";
 import { useTransactionContext } from "@/context/transaction.context";
 import { useErrorHandler } from "@/shared/hooks/useErrorHandler";
+import { Text } from "@/components/Text";
 
 interface Params {
   transaction: Transaction;
@@ -69,7 +70,7 @@ export const TransactionCard: FC<Params> = ({ transaction }) => {
         <View className="flex-row justify-between items-center">
           <Text
             className={clsx(
-              "text-xl font-bold mt-2",
+              "text-xl font-heading mt-2",
               isExpense ? "text-accent-red" : "text-accent-brand-light",
               contentOpacity,
             )}
@@ -86,7 +87,7 @@ export const TransactionCard: FC<Params> = ({ transaction }) => {
               {loading ? (
                 <ActivityIndicator color={colors.white} />
               ) : (
-                <Text className="text-white font-bold text-sm">Sync</Text>
+                <Text className="text-white font-heading text-sm">Sync</Text>
               )}
             </TouchableOpacity>
           )}
@@ -103,7 +104,7 @@ export const TransactionCard: FC<Params> = ({ transaction }) => {
               size={23}
               color={colors.gray[700]}
             />
-            <Text className="text-gray-700 text-vase ml-2">
+            <Text className="text-gray-700 text-base ml-2">
               {transaction.category.name}
             </Text>
           </View>

@@ -1,7 +1,6 @@
 import { useState, useMemo, FC } from "react";
 import {
   View,
-  Text,
   TouchableOpacity,
   FlatList,
   Modal,
@@ -10,7 +9,8 @@ import {
 import Checkbox from "expo-checkbox";
 import { useTransactionContext } from "@/context/transaction.context";
 import clsx from "clsx";
-import { colors } from "@/shared/colors";
+import { colors } from "@/styles/colors";
+import { Text } from "../Text";
 
 interface Props {
   selectedCategory?: number;
