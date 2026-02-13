@@ -13,10 +13,6 @@ import {
   Poppins_700Bold,
 } from "@expo-google-fonts/poppins";
 import { ActivityIndicator, View } from "react-native";
-import * as SplashScreen from "expo-splash-screen";
-import { useCallback } from "react";
-
-SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -25,18 +21,15 @@ export default function App() {
     Poppins_700Bold,
   });
 
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-
   if (!fontsLoaded) {
-    return null;
+    return (
+      <View className="flex-1 justify-center items-center bg-white">
+        <ActivityIndicator size="large" color="#000" />
+      </View>
+    );
   }
-
   return (
-    <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <SnackbarContextProvider>
         <AuthContextProvider>
           <TransactionContextProvider>

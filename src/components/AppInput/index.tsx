@@ -11,6 +11,7 @@ import { useRef, useState } from "react";
 import clsx from "clsx";
 import { ErrorMessage } from "../ErrorMessage";
 import { Text } from "../Text";
+import { Input } from "../Input";
 
 interface AppInputParams<T extends FieldValues> extends TextInputProps {
   control: Control<T>;
@@ -65,11 +66,11 @@ export const AppInput = <T extends FieldValues>({
                   className="mr-2"
                 />
               )}
-              <TextInput
+              <Input
                 value={value}
                 onChangeText={onChange}
                 placeholderTextColor={colors.gray[700]}
-                className="font-sans flex-1 text-base text-gray-500"
+                className="flex-1 text-base text-gray-500"
                 onFocus={checkFocus}
                 onEndEditing={checkFocus}
                 secureTextEntry={showText}

@@ -1,10 +1,5 @@
 import { FC, useState } from "react";
-import {
-  TouchableOpacity,
-  View,
-  TextInput,
-  ActivityIndicator,
-} from "react-native";
+import { TouchableOpacity, View, ActivityIndicator } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { colors } from "@/styles/colors";
 import { useBottomSheetContext } from "@/context/bottomsheet.context";
@@ -20,6 +15,7 @@ import { transactionSchema } from "./schema";
 import { Transaction } from "@/shared/interfaces/transaction";
 import { UpdateTransactionInterface } from "@/shared/interfaces/https/update-transaction-request";
 import { Text } from "@/components/Text";
+import { Input } from "@/components/Input";
 
 type ValidationErrorsTypes = Record<keyof UpdateTransactionInterface, string>;
 
@@ -61,8 +57,6 @@ export const EditTransactionForm: FC<Params> = ({
           value: transactionToUpdate.value,
         },
   );
-
-  console.log(transaction);
 
   const [validationErrors, setValidationErrors] =
     useState<ValidationErrorsTypes>();
@@ -108,7 +102,7 @@ export const EditTransactionForm: FC<Params> = ({
         <MaterialIcons name="close" color={colors.gray[700]} size={20} />
       </TouchableOpacity>
       <View className="flex-1 mt-8 mb-8">
-        <TextInput
+        <Input
           onChangeText={(text) => setTransactionData("description", text)}
           placeholder="Descrição"
           placeholderTextColor={colors.gray[700]}
@@ -128,7 +122,7 @@ export const EditTransactionForm: FC<Params> = ({
           precision={2}
           minValue={0}
           onChangeValue={(value) => setTransactionData("value", value ?? 0)}
-          className="text-white text-lg h-[50px] bg-background-primary my-2 rounded-[6] pl-4"
+          className="font-sans text-white text-lg h-[50px] bg-background-primary my-2 rounded-[6] pl-4"
         />
 
         {validationErrors?.value && (

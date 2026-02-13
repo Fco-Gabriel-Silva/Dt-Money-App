@@ -1,11 +1,6 @@
 import { CreateTransactionInterface } from "@/shared/interfaces/https/create-transaction-request";
 import { useState } from "react";
-import {
-  TouchableOpacity,
-  View,
-  TextInput,
-  ActivityIndicator,
-} from "react-native";
+import { TouchableOpacity, View, ActivityIndicator } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { colors } from "@/styles/colors";
 import { useBottomSheetContext } from "@/context/bottomsheet.context";
@@ -19,6 +14,8 @@ import { ErrorMessage } from "../ErrorMessage";
 import { useTransactionContext } from "@/context/transaction.context";
 import { useErrorHandler } from "@/shared/hooks/useErrorHandler";
 import { Text } from "../Text";
+import { fontFamily } from "@/styles/fontFamily";
+import { Input } from "../Input";
 
 type ValidationErrorsTypes = Record<keyof CreateTransactionInterface, string>;
 
@@ -80,12 +77,13 @@ export const NewTransaction = () => {
         <MaterialIcons name="close" color={colors.gray[700]} size={20} />
       </TouchableOpacity>
       <View className="flex-1 mt-8 mb-8">
-        <TextInput
+        <Input
           onChangeText={(text) => setTransactionData("description", text)}
           placeholder="Descrição"
           placeholderTextColor={colors.gray[700]}
           value={transaction.description}
-          className="font-sans text-white text-lg h-[50px] bg-background-primary my-2 rounded-[6] pl-4"
+          className="text-white text-lg h-[50px] bg-background-primary my-2 rounded-[6] pl-4"
+          style={{ fontFamily: fontFamily.sans }}
         />
 
         {validationErrors?.value && (
