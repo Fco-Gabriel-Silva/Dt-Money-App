@@ -93,22 +93,25 @@ export const SelectCategoryModal: FC<Props> = ({
                       }
                       className="mr-2"
                     />
-                    <Text className="text-white text-center text-lg">
+                    <Text className="text-white text-center text-lg font-normal">
                       {item.name}
                     </Text>
                   </TouchableOpacity>
                 )}
-                ListFooterComponent={() => (
-                  <View className="mt-4 pt-4 border-t border-gray-700">
-                    <AppButton
-                      mode="outline"
-                      onPress={handleOpenNewCategory}
-                      iconName="add"
-                    >
-                      Nova Categoria
-                    </AppButton>
+                ListHeaderComponent={() => (
+                  <View className="bg-background-secondary shadow-lg shadow-black w-full">
+                    <View className="mb-4 pb-4 border-b border-gray-700 bg-background-secondary">
+                      <AppButton
+                        mode="outline"
+                        onPress={handleOpenNewCategory}
+                        iconName="add"
+                      >
+                        Nova Categoria
+                      </AppButton>
+                    </View>
                   </View>
                 )}
+                stickyHeaderIndices={[0]}
               />
             </View>
           </View>

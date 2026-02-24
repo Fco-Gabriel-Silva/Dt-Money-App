@@ -77,13 +77,13 @@ export const NewCategory = () => {
         <MaterialIcons name="close" color={colors.gray[700]} size={20} />
       </TouchableOpacity>
 
-      <View className="mt-8 mb-8">
+      <View className="mt-4 mb-8">
         <Input
           onChangeText={(text) => setValue("name", text)}
           placeholder="Nome da categoria"
           placeholderTextColor={colors.gray[700]}
           value={name}
-          className="text-white text-lg bg-background-primary my-2 rounded-[6] pl-4 h-14"
+          className="text-white text-lg bg-background-primary my-2 rounded-[6] pl-4"
           style={{ fontFamily: fontFamily.sans }}
         />
         {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
