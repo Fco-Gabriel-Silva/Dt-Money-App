@@ -11,6 +11,9 @@ import { useTransactionContext } from "@/context/transaction.context";
 import clsx from "clsx";
 import { colors } from "@/styles/colors";
 import { Text } from "../Text";
+import { useBottomSheetContext } from "@/context/bottomsheet.context";
+import { NewCategory } from "../NewCategory";
+import { AppButton } from "../AppButton";
 
 interface Props {
   selectedCategory?: number;
@@ -22,6 +25,8 @@ export const SelectCategoryModal: FC<Props> = ({
   onSelect,
 }) => {
   const [showModal, setShowModal] = useState(false);
+  const { categories } = useTransactionContext();
+  const { openBottomSheet } = useBottomSheetContext();
   const handleModal = () => setShowModal((prevState) => !prevState);
 
   const handleSelect = (categoryId: number) => {
@@ -29,7 +34,13 @@ export const SelectCategoryModal: FC<Props> = ({
     setShowModal(false);
   };
 
-  const { categories } = useTransactionContext();
+  const handleOpenNewCategory = () => {
+    setShowModal(false); // Fecha o modal atual
+    // Um pequeno timeout para a animação do modal não conflitar com o bottomsheet
+    setTimeout(() => {
+      openBottomSheet(<NewCategory />, 0);
+    }, 300);
+  };
 
   const selected = useMemo(
     () => categories?.find(({ id }) => id === selectedCategory),
@@ -54,8 +65,8 @@ export const SelectCategoryModal: FC<Props> = ({
       <Modal visible={showModal} transparent animationType="slide">
         <TouchableWithoutFeedback onPress={handleModal}>
           <View className="flex-1 justify-center items-center bg-black/50">
-            <View className="bg-background-secondary p-4 rounded-xl w-[90%]">
-              <Text className="text-white text-lg mb-4">
+            <View className="bg-background-secondary p-4 rounded-xl w-[90%] max-h-[80%]">
+              <Text className="text-white text-lg mb-4 font-heading">
                 Selecione uma categoria
               </Text>
               <FlatList
@@ -66,6 +77,12 @@ export const SelectCategoryModal: FC<Props> = ({
                     onPress={() => handleSelect(item.id)}
                     className="flex-row items-center bg-gray-800 p-4 rounded-lg mb-2"
                   >
+                    {item.color && (
+                      <View
+                        style={{ backgroundColor: item.color }}
+                        className="w-3 h-3 rounded-full mr-2"
+                      />
+                    )}
                     <Checkbox
                       value={selected?.id === item.id}
                       onValueChange={() => handleSelect(item.id)}
@@ -80,6 +97,17 @@ export const SelectCategoryModal: FC<Props> = ({
                       {item.name}
                     </Text>
                   </TouchableOpacity>
+                )}
+                ListFooterComponent={() => (
+                  <View className="mt-4 pt-4 border-t border-gray-700">
+                    <AppButton
+                      mode="outline"
+                      onPress={handleOpenNewCategory}
+                      iconName="add"
+                    >
+                      Nova Categoria
+                    </AppButton>
+                  </View>
                 )}
               />
             </View>

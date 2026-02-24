@@ -19,6 +19,7 @@ import {
 } from "@/shared/interfaces/https/get-transactions-request";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { transactionTypesLocal } from "@/shared/enums/transaction-types-local";
+import { CreateCategoryRequest } from "@/shared/interfaces/https/create-category-request";
 
 const filtersInitialValues = {
   categoryIds: {},
@@ -70,6 +71,7 @@ type TransactionTextType = {
   resetFilter: () => Promise<void>;
   syncTransaction: (transaction: Transaction) => Promise<void>;
   getLocalTransactions: () => Promise<Transaction[]>;
+  createCategory: (data: CreateCategoryRequest) => Promise<void>;
 };
 
 export const TransactionContext = createContext({} as TransactionTextType);
@@ -324,6 +326,15 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
     await refreshTransactions();
   };
 
+  const createCategory = async (data: CreateCategoryRequest) => {
+    try {
+      await transactionService.createCategory(data);
+      await fetchCategories();
+    } catch (error) {
+      throw error;
+    }
+  };
+
   return (
     <TransactionContext.Provider
       value={{
@@ -347,6 +358,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
         resetFilter,
         syncTransaction,
         getLocalTransactions,
+        createCategory,
       }}
     >
       {children}

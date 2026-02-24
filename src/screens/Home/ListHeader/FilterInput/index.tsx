@@ -46,7 +46,7 @@ export const FilterInput = () => {
         className={`flex-row items-center justify-between h-16`}
       >
         <Input
-          className="h-[50] text-white w-full bg-background-primary text-lg pl-4"
+          className="text-white w-full bg-background-primary text-lg pl-4"
           value={text}
           onChangeText={setText}
           placeholderTextColor={colors.gray["600"]}
