@@ -1,25 +1,25 @@
-import { useState } from "react";
+import { FC, useState } from "react";
 import { View, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { MaterialIcons } from "@expo/vector-icons";
-import * as Yup from "yup";
 import clsx from "clsx";
 
 import { useBottomSheetContext } from "@/context/bottomsheet.context";
-import { useTransactionContext } from "@/context/transaction.context";
 import { useErrorHandler } from "@/shared/hooks/useErrorHandler";
 import { useSnackbarContext } from "@/context/snackbar.context"; // Para avisar sucesso
 import { colors } from "@/styles/colors";
 import { fontFamily } from "@/styles/fontFamily";
 
-import { Text } from "../Text";
-import { Input } from "../Input";
-import { AppButton } from "../AppButton";
-import { ErrorMessage } from "../ErrorMessage";
 import { categorySchema } from "./schema";
 import { CreateCategoryRequest } from "@/shared/interfaces/https/create-category-request";
 import { useCategoryContext } from "@/context/category.context";
+import { Text } from "@/components/Text";
+import { Input } from "@/components/Input";
+import { ErrorMessage } from "@/components/ErrorMessage";
+import { AppButton } from "@/components/AppButton";
+import { TransactionCategory } from "@/shared/interfaces/https/transaction-category-response";
+import { UpdateCategoryRequest } from "@/shared/interfaces/https/update-category-request";
 
 // Cores pré-definidas para o usuário escolher (inspiradas no seu tema)
 const AVAILABLE_COLORS = [
@@ -31,7 +31,13 @@ const AVAILABLE_COLORS = [
   "#E1E1E6", // cinza claro
 ];
 
-export const NewCategory = () => {
+interface Params {
+  category: TransactionCategory;
+}
+
+export const EditCategoryForm: FC<Params> = ({
+  category: categoryToUpdate,
+}) => {
   const { closeBottomSheet } = useBottomSheetContext();
   const { createCategory } = useCategoryContext();
   const { handleError } = useErrorHandler();
@@ -44,15 +50,20 @@ export const NewCategory = () => {
     watch,
     handleSubmit,
     formState: { errors },
-  } = useForm<CreateCategoryRequest>({
+  } = useForm<UpdateCategoryRequest>({
     resolver: yupResolver(categorySchema),
-    defaultValues: { name: "", color: "" },
+    defaultValues: {
+      id: categoryToUpdate.id,
+      name: categoryToUpdate.name,
+      color: categoryToUpdate.color,
+      userId: categoryToUpdate.userId,
+    },
   });
 
   const selectedColor = watch("color");
   const name = watch("name"); // Monitorando o valor para passar pro Input customizado
 
-  const handleCreate = async (data: CreateCategoryRequest) => {
+  const handleCreate = async (data: UpdateCategoryRequest) => {
     try {
       setLoading(true);
       await createCategory(data);
@@ -74,7 +85,9 @@ export const NewCategory = () => {
         onPress={closeBottomSheet}
         className="w-full flex-row items-center justify-between"
       >
-        <Text className="text-white text-xl font-heading">Nova Categoria</Text>
+        <Text className="text-white text-xl font-heading">
+          Editar Categoria
+        </Text>
         <MaterialIcons name="close" color={colors.gray[700]} size={20} />
       </TouchableOpacity>
 
@@ -114,7 +127,7 @@ export const NewCategory = () => {
             {loading ? (
               <ActivityIndicator color={colors.white} />
             ) : (
-              "Criar Categoria"
+              "Editar Categoria"
             )}
           </AppButton>
         </View>

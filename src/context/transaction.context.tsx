@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import * as transactionService from "@/shared/services/dt-money/transaction.service";
+import * as categoryService from "@/shared/services/dt-money/category.service";
 import { CreateTransactionInterface } from "@/shared/interfaces/https/create-transaction-request";
 import { Transaction } from "@/shared/interfaces/transaction";
 import { TotalTransactions } from "@/shared/interfaces/total-transaction";
@@ -20,6 +21,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { transactionTypesLocal } from "@/shared/enums/transaction-types-local";
 import { CreateCategoryRequest } from "@/shared/interfaces/https/create-category-request";
+import { useCategoryContext } from "./category.context";
 
 const filtersInitialValues = {
   categoryIds: {},
@@ -49,8 +51,6 @@ interface HandleFiltersParams {
 }
 
 type TransactionTextType = {
-  fetchCategories: () => Promise<void>;
-  categories: TransactionCategory[];
   createTransaction: (transaction: CreateTransactionInterface) => Promise<void>;
   updateTransaction: (
     transaction: UpdateTransactionInterface | Transaction,
@@ -71,7 +71,6 @@ type TransactionTextType = {
   resetFilter: () => Promise<void>;
   syncTransaction: (transaction: Transaction) => Promise<void>;
   getLocalTransactions: () => Promise<Transaction[]>;
-  createCategory: (data: CreateCategoryRequest) => Promise<void>;
 };
 
 export const TransactionContext = createContext({} as TransactionTextType);
@@ -79,7 +78,7 @@ export const TransactionContext = createContext({} as TransactionTextType);
 export const TransactionContextProvider: FC<PropsWithChildren> = ({
   children,
 }) => {
-  const [categories, setCategories] = useState<TransactionCategory[]>([]);
+  const { categories } = useCategoryContext();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [searchText, setSearchText] = useState("");
   const [filters, setFilters] = useState<Filters>(filtersInitialValues);
@@ -143,11 +142,6 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
       totalRows: transactionResponse.totalRows,
     });
   }, [pagination, filters, categoryIds]);
-
-  const fetchCategories = async () => {
-    const categories = await transactionService.getTransactionCategories();
-    setCategories(categories);
-  };
 
   const createTransaction = async (transaction: CreateTransactionInterface) => {
     // await transactionService.createTransaction(transaction);
@@ -326,20 +320,9 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
     await refreshTransactions();
   };
 
-  const createCategory = async (data: CreateCategoryRequest) => {
-    try {
-      await transactionService.createCategory(data);
-      await fetchCategories();
-    } catch (error) {
-      throw error;
-    }
-  };
-
   return (
     <TransactionContext.Provider
       value={{
-        categories,
-        fetchCategories,
         createTransaction,
         fetchTransactions,
         totalTransactions,
@@ -358,7 +341,6 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
         resetFilter,
         syncTransaction,
         getLocalTransactions,
-        createCategory,
       }}
     >
       {children}

@@ -42,58 +42,53 @@ export const AppInput = <T extends FieldValues>({
     <Controller
       control={control}
       name={name}
-      render={({ field: { onChange, value }, fieldState: { error } }) => {
-        console.log(error);
-        return (
-          <View className="w-full mt-4">
-            {label && (
-              <Text
-                className={clsx(
-                  "mb-2 mt-3 text-base font-sans",
-                  isFocused ? "text-accent-brand" : "text-gray-600",
-                )}
-              >
-                {label}
-              </Text>
-            )}
-
-            <TouchableOpacity className="flex-row items-center justify-between border-b-[1px] border-gray-600 px-3 py-2 h-16">
-              {leftIconName && (
-                <MaterialIcons
-                  name={leftIconName}
-                  color={isFocused ? colors["accent-brand"] : colors.gray[600]}
-                  size={24}
-                  className="mr-2"
-                />
+      render={({ field: { onChange, value }, fieldState: { error } }) => (
+        <View className="w-full mt-4">
+          {label && (
+            <Text
+              className={clsx(
+                "mb-2 mt-3 text-base font-sans",
+                isFocused ? "text-accent-brand" : "text-gray-600",
               )}
-              <Input
-                value={value}
-                onChangeText={onChange}
-                placeholderTextColor={colors.gray[700]}
-                className="flex-1 text-base text-gray-500 h-16"
-                onFocus={checkFocus}
-                onEndEditing={checkFocus}
-                secureTextEntry={showText}
-                ref={inputRef}
-                {...rest}
+            >
+              {label}
+            </Text>
+          )}
+
+          <TouchableOpacity className="flex-row items-center justify-between border-b-[1px] border-gray-600 px-3 py-2 h-16">
+            {leftIconName && (
+              <MaterialIcons
+                name={leftIconName}
+                color={isFocused ? colors["accent-brand"] : colors.gray[600]}
+                size={24}
+                className="mr-2"
               />
+            )}
+            <Input
+              value={value}
+              onChangeText={onChange}
+              placeholderTextColor={colors.gray[700]}
+              className="flex-1 text-base text-gray-500 h-16"
+              onFocus={checkFocus}
+              onEndEditing={checkFocus}
+              secureTextEntry={showText}
+              ref={inputRef}
+              {...rest}
+            />
 
-              {secureTextEntry && (
-                <TouchableOpacity
-                  onPress={() => setShowText((value) => !value)}
-                >
-                  <MaterialIcons
-                    name={showText ? "visibility" : "visibility-off"}
-                    color={colors.gray[600]}
-                    size={24}
-                  />
-                </TouchableOpacity>
-              )}
-            </TouchableOpacity>
-            {error && <ErrorMessage>{error.message}</ErrorMessage>}
-          </View>
-        );
-      }}
+            {secureTextEntry && (
+              <TouchableOpacity onPress={() => setShowText((value) => !value)}>
+                <MaterialIcons
+                  name={showText ? "visibility" : "visibility-off"}
+                  color={colors.gray[600]}
+                  size={24}
+                />
+              </TouchableOpacity>
+            )}
+          </TouchableOpacity>
+          {error && <ErrorMessage>{error.message}</ErrorMessage>}
+        </View>
+      )}
     />
   );
 };

@@ -8,16 +8,6 @@ import { TransactionCategory } from "@/shared/interfaces/https/transaction-categ
 import { UpdateTransactionInterface } from "@/shared/interfaces/https/update-transaction-request";
 import { Transaction } from "@/shared/interfaces/transaction";
 import qs from "qs";
-import { CreateCategoryRequest } from "@/shared/interfaces/https/create-category-request";
-
-export const getTransactionCategories = async (): Promise<
-  TransactionCategory[]
-> => {
-  const { data } = await dtMoneyApi.get<TransactionCategory[]>(
-    "/transaction/categories",
-  );
-  return data;
-};
 
 export const createTransaction = async (
   transaction: CreateTransactionInterface | Transaction,
@@ -46,8 +36,4 @@ export const updateTransaction = async (
   transaction: UpdateTransactionInterface,
 ) => {
   await dtMoneyApi.put(`/transaction`, transaction);
-};
-
-export const createCategory = async (data: CreateCategoryRequest) => {
-  await dtMoneyApi.post("/category", data);
 };

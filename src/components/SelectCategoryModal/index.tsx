@@ -14,6 +14,7 @@ import { Text } from "../Text";
 import { useBottomSheetContext } from "@/context/bottomsheet.context";
 import { NewCategory } from "../NewCategory";
 import { AppButton } from "../AppButton";
+import { useCategoryContext } from "@/context/category.context";
 
 interface Props {
   selectedCategory?: number;
@@ -25,7 +26,7 @@ export const SelectCategoryModal: FC<Props> = ({
   onSelect,
 }) => {
   const [showModal, setShowModal] = useState(false);
-  const { categories } = useTransactionContext();
+  const { categories } = useCategoryContext();
   const { openBottomSheet } = useBottomSheetContext();
   const handleModal = () => setShowModal((prevState) => !prevState);
 

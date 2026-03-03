@@ -16,11 +16,12 @@ import { ListHeader } from "./ListHeader";
 import { TransactionCard } from "./TransactionCard";
 import { EmptyList } from "./EmptyList";
 import { colors } from "@/styles/colors";
+import { useCategoryContext } from "@/context/category.context";
 
 export const Home = () => {
   const { handleLogout } = useAuthContext();
+  const { fetchCategories } = useCategoryContext();
   const {
-    fetchCategories,
     fetchTransactions,
     transactions,
     refreshTransactions,
