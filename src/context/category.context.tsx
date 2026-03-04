@@ -8,12 +8,14 @@ import {
   useState,
 } from "react";
 import * as categoryService from "@/shared/services/dt-money/category.service";
+import { UpdateCategoryRequest } from "@/shared/interfaces/https/update-category-request";
 
 type CategoryTextType = {
   refreshCategories: () => Promise<void>;
   fetchCategories: () => Promise<void>;
   categories: TransactionCategory[];
   createCategory: (data: CreateCategoryRequest) => Promise<void>;
+  updateCategory: (data: UpdateCategoryRequest) => Promise<void>;
 };
 
 export const CategoryContext = createContext({} as CategoryTextType);
@@ -34,6 +36,7 @@ export const CategoryContextProvider: FC<PropsWithChildren> = ({
 
   const fetchCategories = async () => {
     const categories = await categoryService.getTransactionCategories();
+    console.log(categories);
     setCategories(categories);
   };
 
@@ -46,9 +49,24 @@ export const CategoryContextProvider: FC<PropsWithChildren> = ({
     }
   };
 
+  const updateCategory = async (data: UpdateCategoryRequest) => {
+    try {
+      await categoryService.updateCategory(data);
+      await refreshCategories();
+    } catch (error) {
+      throw error;
+    }
+  };
+
   return (
     <CategoryContext.Provider
-      value={{ fetchCategories, categories, createCategory, refreshCategories }}
+      value={{
+        fetchCategories,
+        categories,
+        createCategory,
+        refreshCategories,
+        updateCategory,
+      }}
     >
       {children}
     </CategoryContext.Provider>

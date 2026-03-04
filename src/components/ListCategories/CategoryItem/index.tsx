@@ -12,10 +12,10 @@ export const CategoryItem = ({
   return (
     <Swipeable
       containerStyle={{
-        alignItems: "center",
+        alignItems: "stretch",
         alignSelf: "center",
         overflow: "visible",
-        width: "90%",
+        width: "100%",
         marginBottom: 16,
       }}
       overshootRight={false}
@@ -23,7 +23,10 @@ export const CategoryItem = ({
       renderRightActions={() => <RightAction category={category} />}
       renderLeftActions={() => <LeftAction category={category} />}
     >
-      <TouchableOpacity className="flex-row items-center bg-gray-800 p-4 rounded-lg mb-2">
+      <TouchableOpacity
+        className="flex-row items-center bg-gray-800 px-6 h-[75px] rounded-lg gap-2"
+        activeOpacity={1}
+      >
         {category.color && (
           <View
             style={{ backgroundColor: category.color }}

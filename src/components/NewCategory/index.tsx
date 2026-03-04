@@ -20,22 +20,15 @@ import { ErrorMessage } from "../ErrorMessage";
 import { categorySchema } from "./schema";
 import { CreateCategoryRequest } from "@/shared/interfaces/https/create-category-request";
 import { useCategoryContext } from "@/context/category.context";
-
-// Cores pré-definidas para o usuário escolher (inspiradas no seu tema)
-const AVAILABLE_COLORS = [
-  "#F75A68", // accent-red
-  "#00B37E", // accent-brand-light
-  "#5A86F7", // accent-blue
-  "#FBA94C", // laranja
-  "#8257E5", // roxo
-  "#E1E1E6", // cinza claro
-];
+import { useAuthContext } from "@/context/auth.context";
+import { AVAILABLE_COLORS } from "@/styles/available-colors";
 
 export const NewCategory = () => {
   const { closeBottomSheet } = useBottomSheetContext();
   const { createCategory } = useCategoryContext();
   const { handleError } = useErrorHandler();
   const { notify } = useSnackbarContext();
+  const { user } = useAuthContext();
   const [loading, setLoading] = useState(false);
 
   const {
@@ -46,7 +39,7 @@ export const NewCategory = () => {
     formState: { errors },
   } = useForm<CreateCategoryRequest>({
     resolver: yupResolver(categorySchema),
-    defaultValues: { name: "", color: "" },
+    defaultValues: { name: "", color: "", userId: user?.id },
   });
 
   const selectedColor = watch("color");

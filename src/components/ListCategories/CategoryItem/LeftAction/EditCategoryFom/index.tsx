@@ -12,7 +12,6 @@ import { colors } from "@/styles/colors";
 import { fontFamily } from "@/styles/fontFamily";
 
 import { categorySchema } from "./schema";
-import { CreateCategoryRequest } from "@/shared/interfaces/https/create-category-request";
 import { useCategoryContext } from "@/context/category.context";
 import { Text } from "@/components/Text";
 import { Input } from "@/components/Input";
@@ -20,16 +19,8 @@ import { ErrorMessage } from "@/components/ErrorMessage";
 import { AppButton } from "@/components/AppButton";
 import { TransactionCategory } from "@/shared/interfaces/https/transaction-category-response";
 import { UpdateCategoryRequest } from "@/shared/interfaces/https/update-category-request";
-
-// Cores pré-definidas para o usuário escolher (inspiradas no seu tema)
-const AVAILABLE_COLORS = [
-  "#F75A68", // accent-red
-  "#00B37E", // accent-brand-light
-  "#5A86F7", // accent-blue
-  "#FBA94C", // laranja
-  "#8257E5", // roxo
-  "#E1E1E6", // cinza claro
-];
+import { useAuthContext } from "@/context/auth.context";
+import { AVAILABLE_COLORS } from "@/styles/available-colors";
 
 interface Params {
   category: TransactionCategory;
@@ -39,11 +30,13 @@ export const EditCategoryForm: FC<Params> = ({
   category: categoryToUpdate,
 }) => {
   const { closeBottomSheet } = useBottomSheetContext();
-  const { createCategory } = useCategoryContext();
   const { handleError } = useErrorHandler();
   const { notify } = useSnackbarContext();
+  const { updateCategory } = useCategoryContext();
+  const { user } = useAuthContext();
   const [loading, setLoading] = useState(false);
 
+  console.log(categoryToUpdate);
   const {
     control, // Se for usar Controller no Input, mas seu Input atual é direto
     setValue,
@@ -56,24 +49,24 @@ export const EditCategoryForm: FC<Params> = ({
       id: categoryToUpdate.id,
       name: categoryToUpdate.name,
       color: categoryToUpdate.color,
-      userId: categoryToUpdate.userId,
+      userId: user?.id,
     },
   });
 
   const selectedColor = watch("color");
   const name = watch("name"); // Monitorando o valor para passar pro Input customizado
 
-  const handleCreate = async (data: UpdateCategoryRequest) => {
+  const handleUpdate = async (data: UpdateCategoryRequest) => {
     try {
       setLoading(true);
-      await createCategory(data);
+      await updateCategory(data);
       notify({
-        message: "Categoria criada com sucesso!",
+        message: "Categoria atualizada com sucesso!",
         messageType: "SUCCESS",
       });
       closeBottomSheet();
     } catch (error) {
-      handleError(error, "Falha ao criar categoria");
+      handleError(error, "Falha ao atualizar categoria");
     } finally {
       setLoading(false);
     }
@@ -123,7 +116,11 @@ export const EditCategoryForm: FC<Params> = ({
         {errors.color && <ErrorMessage>{errors.color.message}</ErrorMessage>}
 
         <View className="mt-8">
-          <AppButton onPress={handleSubmit(handleCreate)}>
+          <AppButton
+            onPress={handleSubmit(handleUpdate, (errosDeValidacao) => {
+              console.log("O Yup barrou! Motivo:", errosDeValidacao);
+            })}
+          >
             {loading ? (
               <ActivityIndicator color={colors.white} />
             ) : (

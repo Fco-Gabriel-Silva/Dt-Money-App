@@ -9,14 +9,23 @@ export const LeftAction = ({ category }: { category: TransactionCategory }) => {
   const { openBottomSheet } = useBottomSheetContext();
 
   return (
-    <Pressable
-      onPress={() =>
-        openBottomSheet(<EditCategoryForm category={category} />, 0)
-      }
-    >
-      <View className="h-[140] bg-accent-blue-dark w-[80] rounded-l-[6] items-center justify-center z-99">
+    <View className="w-[70px] justify-center items-center">
+      <View
+        className="absolute top-0 bottom-0 bg-accent-blue-dark rounded-l-[6]"
+        style={{
+          width: 100,
+          left: 0,
+        }}
+      />
+
+      <Pressable
+        className="h-full w-full items-center justify-center z-10"
+        onPress={() =>
+          openBottomSheet(<EditCategoryForm category={category} />, 0)
+        }
+      >
         <MaterialIcons color={colors.white} name="edit" size={30} />
-      </View>
-    </Pressable>
+      </Pressable>
+    </View>
   );
 };
