@@ -6,10 +6,10 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { AppButton } from "../AppButton";
+import { AppButton } from "../../components/AppButton";
 import { useTransactionContext } from "@/context/transaction.context";
 import { useBottomSheetContext } from "@/context/bottomsheet.context";
-import { NewCategory } from "../NewCategory";
+import { NewCategory } from "../../components/NewCategory";
 import { CategoryItem } from "./CategoryItem";
 import { useCategoryContext } from "@/context/category.context";
 
@@ -23,24 +23,22 @@ export const ListCategories = () => {
         <Text className="text-white text-lg mb-4 font-heading">
           Categorias Existentes
         </Text>
+        <View className="bg-background-primary shadow-lg shadow-black w-full">
+          <View className="mb-4 pb-4 border-b border-gray-700 bg-background-primary">
+            <AppButton
+              mode="outline"
+              onPress={() => openBottomSheet(<NewCategory />, 0)}
+              iconName="add"
+            >
+              Nova Categoria
+            </AppButton>
+          </View>
+        </View>
         <FlatList
           data={categories}
           keyExtractor={(item) => `category-${item.id}`}
           renderItem={({ item }) => <CategoryItem category={item} />}
-          ListHeaderComponent={() => (
-            <View className="bg-background-primary shadow-lg shadow-black w-full">
-              <View className="mb-4 pb-4 border-b border-gray-700 bg-background-primary">
-                <AppButton
-                  mode="outline"
-                  onPress={() => openBottomSheet(<NewCategory />, 0)}
-                  iconName="add"
-                >
-                  Nova Categoria
-                </AppButton>
-              </View>
-            </View>
-          )}
-          stickyHeaderIndices={[0]}
+          showsVerticalScrollIndicator={false}
         />
       </View>
     </View>
