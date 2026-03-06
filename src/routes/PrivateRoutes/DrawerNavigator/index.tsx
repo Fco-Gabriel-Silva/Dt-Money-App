@@ -35,7 +35,7 @@ export const DrawerNavigator = () => {
           },
         }}
       >
-        <Drawer.Screen name="StackNavigator" component={StackNavigator} />
+        <Drawer.Screen name="Início" component={StackNavigator} />
         <Drawer.Screen name="Categorias" component={ListCategories} />
       </Drawer.Navigator>
     </SafeAreaView>

@@ -36,7 +36,6 @@ export const EditCategoryForm: FC<Params> = ({
   const { user } = useAuthContext();
   const [loading, setLoading] = useState(false);
 
-  console.log(categoryToUpdate);
   const {
     control, // Se for usar Controller no Input, mas seu Input atual é direto
     setValue,

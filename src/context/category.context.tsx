@@ -36,7 +36,6 @@ export const CategoryContextProvider: FC<PropsWithChildren> = ({
 
   const fetchCategories = async () => {
     const categories = await categoryService.getTransactionCategories();
-    console.log(categories);
     setCategories(categories);
   };
 
