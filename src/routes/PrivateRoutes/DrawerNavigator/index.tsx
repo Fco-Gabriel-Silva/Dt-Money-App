@@ -1,19 +1,26 @@
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { StackNavigator } from "./StackNavigator";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ProfileSidebar } from "./ProfileSidebar";
 import { fontFamily } from "@/styles/fontFamily";
 import { colors } from "@/styles/colors";
 import { useState } from "react";
-import { ListCategories } from "@/components/ListCategories";
+import { ListCategories } from "@/screens/ListCategories";
+import { Profile } from "@/screens/Profile";
+import { Sidebar } from "./Sidebar";
 
 const Drawer = createDrawerNavigator();
+
+export type PrivateDrawerParamsList = {
+  Início: undefined;
+  "Meu Perfil": undefined;
+  Categorias: undefined;
+};
 
 export const DrawerNavigator = () => {
   return (
     <SafeAreaView className="flex-1 bg-background-secondary">
       <Drawer.Navigator
-        drawerContent={ProfileSidebar}
+        drawerContent={Sidebar}
         screenOptions={{
           headerShown: true,
           headerStyle: {
@@ -36,6 +43,11 @@ export const DrawerNavigator = () => {
         }}
       >
         <Drawer.Screen name="Início" component={StackNavigator} />
+        <Drawer.Screen
+          name="Meu Perfil"
+          component={Profile}
+          options={{ headerShown: false }}
+        />
         <Drawer.Screen name="Categorias" component={ListCategories} />
       </Drawer.Navigator>
     </SafeAreaView>

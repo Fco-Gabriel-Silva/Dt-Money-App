@@ -10,7 +10,7 @@ import { useAuthContext } from "@/context/auth.context";
 import { Text } from "@/components/Text";
 import { colors } from "@/styles/colors";
 
-export const ProfileSidebar = (props: DrawerContentComponentProps) => {
+export const Sidebar = (props: DrawerContentComponentProps) => {
   const { user } = useAuthContext();
   const { handleLogout } = useAuthContext();
 
@@ -40,7 +40,7 @@ export const ProfileSidebar = (props: DrawerContentComponentProps) => {
           onPress={handleLogout}
           className="flex-row items-center gap-2"
         >
-          <MaterialIcons name="logout" color={colors.gray[700]} size={30} />
+          <MaterialIcons name="logout" color={colors.gray[700]} size={25} />
           <Text className="text-gray-700 text-base">Sair da conta</Text>
         </TouchableOpacity>
       </View>

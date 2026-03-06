@@ -1,9 +1,10 @@
+import { EditUserForm } from "@/components/EditUserForm";
 import { Home } from "@/screens/Home";
 import { createStackNavigator } from "@react-navigation/stack";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export type PrivateStackParamsList = {
   Home: undefined;
+  ProfileEdit: undefined;
 };
 
 export const StackNavigator = () => {
@@ -16,6 +17,7 @@ export const StackNavigator = () => {
       }}
     >
       <PrivateStack.Screen name="Home" component={Home} />
+      <PrivateStack.Screen name="ProfileEdit" component={EditUserForm} />
     </PrivateStack.Navigator>
   );
 };
