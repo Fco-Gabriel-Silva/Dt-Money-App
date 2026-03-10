@@ -72,7 +72,16 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
 
   const updateUser = async (data: UpdateUserRequest) => {
     try {
-      await userService.updateUser(data);
+      const userUpdated = await userService.updateUser(data);
+
+      if (token) {
+        setUser(userUpdated);
+
+        await AsyncStorage.setItem(
+          "dt-money-user",
+          JSON.stringify({ user: userUpdated, token }),
+        );
+      }
     } catch (error) {
       throw error;
     }

@@ -182,7 +182,7 @@ export const EditUserForm = () => {
             {isSubmitting ? (
               <ActivityIndicator color={colors.white} />
             ) : (
-              "Editar"
+              "Atualizar Perfil"
             )}
           </AppButton>
         </View>
