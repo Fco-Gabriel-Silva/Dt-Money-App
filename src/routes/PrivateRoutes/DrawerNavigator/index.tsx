@@ -1,9 +1,8 @@
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import { StackNavigator } from "./StackNavigator";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { fontFamily } from "@/styles/fontFamily";
 import { colors } from "@/styles/colors";
-import { useState } from "react";
+import { Home } from "@/screens/Home";
 import { ListCategories } from "@/screens/ListCategories";
 import { Profile } from "@/screens/Profile";
 import { Sidebar } from "./Sidebar";
@@ -42,7 +41,8 @@ export const DrawerNavigator = () => {
           },
         }}
       >
-        <Drawer.Screen name="Início" component={StackNavigator} />
+        {/* Agora o Início chama o componente Home diretamente! */}
+        <Drawer.Screen name="Início" component={Home} />
         <Drawer.Screen
           name="Meu Perfil"
           component={Profile}
