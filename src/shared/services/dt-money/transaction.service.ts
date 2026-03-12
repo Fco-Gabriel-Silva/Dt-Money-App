@@ -6,6 +6,7 @@ import {
 } from "@/shared/interfaces/https/get-transactions-request";
 import { TransactionCategory } from "@/shared/interfaces/https/transaction-category-response";
 import { UpdateTransactionInterface } from "@/shared/interfaces/https/update-transaction-request";
+import { Transaction } from "@/shared/interfaces/transaction";
 import qs from "qs";
 
 export const getTransactionCategories = async (): Promise<
@@ -18,7 +19,7 @@ export const getTransactionCategories = async (): Promise<
 };
 
 export const createTransaction = async (
-  transaction: CreateTransactionInterface,
+  transaction: CreateTransactionInterface | Transaction,
 ) => {
   await dtMoneyApi.post("/transaction", transaction);
 };

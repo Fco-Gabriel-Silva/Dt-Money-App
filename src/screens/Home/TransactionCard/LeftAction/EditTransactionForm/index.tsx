@@ -36,13 +36,33 @@ export const EditTransactionForm: FC<Params> = ({
 
   const [loading, setLoading] = useState(false);
 
-  const [transaction, setTransaction] = useState<UpdateTransactionInterface>({
-    categoryId: transactionToUpdate.categoryId,
-    description: transactionToUpdate.description,
-    id: transactionToUpdate.id,
-    typeId: transactionToUpdate.typeId,
-    value: transactionToUpdate.value,
-  });
+  const [transaction, setTransaction] = useState<
+    UpdateTransactionInterface | Transaction
+  >(
+    transactionToUpdate.isLocal
+      ? {
+          id: transactionToUpdate.id,
+          typeId: transactionToUpdate.typeId,
+          categoryId: transactionToUpdate.categoryId,
+          description: transactionToUpdate.description,
+          value: transactionToUpdate.value,
+          isLocal: transactionToUpdate.isLocal,
+          createdAt: transactionToUpdate.createdAt,
+          updatedAt: transactionToUpdate.updatedAt,
+          deletedAt: transactionToUpdate.deletedAt,
+          type: transactionToUpdate.type,
+          category: transactionToUpdate.category,
+        }
+      : {
+          categoryId: transactionToUpdate.categoryId,
+          description: transactionToUpdate.description,
+          id: transactionToUpdate.id,
+          typeId: transactionToUpdate.typeId,
+          value: transactionToUpdate.value,
+        },
+  );
+
+  console.log(transaction);
 
   const [validationErrors, setValidationErrors] =
     useState<ValidationErrorsTypes>();
@@ -64,7 +84,7 @@ export const EditTransactionForm: FC<Params> = ({
         });
         setValidationErrors(errors);
       } else {
-        handleError(error, "Falha ao criar transação");
+        handleError(error, "Falha ao editar transação");
       }
     } finally {
       setLoading(false);

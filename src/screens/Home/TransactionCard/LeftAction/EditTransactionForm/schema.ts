@@ -11,4 +11,5 @@ export const transactionSchema = Yup.object().shape({
   categoryId: Yup.number()
     .min(1, "Selecione uma categoria de transação")
     .required("Categoria de transação é obrigatória"),
+  isLocal: Yup.bool().optional(),
 });

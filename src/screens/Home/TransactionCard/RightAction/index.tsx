@@ -6,15 +6,19 @@ import { useErrorHandler } from "@/shared/hooks/useErrorHandler";
 import { colors } from "@/shared/colors";
 import * as transactionService from "@/shared/services/dt-money/transaction.service";
 import { useSnackbarContext } from "@/context/snackbar.context";
+import { useTransactionContext } from "@/context/transaction.context";
+import { Transaction } from "@/shared/interfaces/transaction";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface Params {
-  transactionId: number;
+  transaction: Transaction;
 }
 
-export const RightAction: FC<Params> = ({ transactionId }) => {
+export const RightAction: FC<Params> = ({ transaction }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const { notify } = useSnackbarContext();
+  const { refreshTransactions, getLocalTransactions } = useTransactionContext();
 
   const showModal = () => {
     setModalVisible(true);
@@ -29,12 +33,26 @@ export const RightAction: FC<Params> = ({ transactionId }) => {
   const handleDeleteTransaction = async () => {
     try {
       setLoading(true);
-      await transactionService.deleteTransaction(transactionId);
+      if (transaction.isLocal) {
+        const localTransactions = await getLocalTransactions();
+
+        const filterTransactionsLocal = localTransactions.filter(
+          (t: Transaction) => t.id !== transaction.id,
+        );
+
+        await AsyncStorage.setItem(
+          "dt-money-transaction-local",
+          JSON.stringify(filterTransactionsLocal),
+        );
+      } else {
+        await transactionService.deleteTransaction(transaction.id);
+      }
       notify({
         message: "Transação deletada com sucesso",
         messageType: "SUCCESS",
       });
       hideModal();
+      await refreshTransactions();
     } catch (error) {
       handleError(error, "Falha ao deletar transação");
     } finally {
