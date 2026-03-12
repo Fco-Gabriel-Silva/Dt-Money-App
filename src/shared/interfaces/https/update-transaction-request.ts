@@ -1,6 +1,6 @@
 export interface UpdateTransactionInterface {
   id: number;
-  description?: string;
+  description: string;
   typeId: number;
   categoryId: number;
   value: number;

@@ -2,7 +2,7 @@ export interface Transaction {
   id: number;
   typeId: number;
   categoryId: number;
-  description: string | undefined;
+  description: string;
   value: number;
   isLocal?: boolean;
   createdAt: Date | string;
