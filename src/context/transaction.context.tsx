@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import * as transactionService from "@/shared/services/dt-money/transaction.service";
+import * as categoryService from "@/shared/services/dt-money/category.service";
 import { CreateTransactionInterface } from "@/shared/interfaces/https/create-transaction-request";
 import { Transaction } from "@/shared/interfaces/transaction";
 import { TotalTransactions } from "@/shared/interfaces/total-transaction";
@@ -19,6 +20,8 @@ import {
 } from "@/shared/interfaces/https/get-transactions-request";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { transactionTypesLocal } from "@/shared/enums/transaction-types-local";
+import { CreateCategoryRequest } from "@/shared/interfaces/https/create-category-request";
+import { useCategoryContext } from "./category.context";
 
 const filtersInitialValues = {
   categoryIds: {},
@@ -48,8 +51,6 @@ interface HandleFiltersParams {
 }
 
 type TransactionTextType = {
-  fetchCategories: () => Promise<void>;
-  categories: TransactionCategory[];
   createTransaction: (transaction: CreateTransactionInterface) => Promise<void>;
   updateTransaction: (
     transaction: UpdateTransactionInterface | Transaction,
@@ -77,7 +78,7 @@ export const TransactionContext = createContext({} as TransactionTextType);
 export const TransactionContextProvider: FC<PropsWithChildren> = ({
   children,
 }) => {
-  const [categories, setCategories] = useState<TransactionCategory[]>([]);
+  const { categories } = useCategoryContext();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [searchText, setSearchText] = useState("");
   const [filters, setFilters] = useState<Filters>(filtersInitialValues);
@@ -141,11 +142,6 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
       totalRows: transactionResponse.totalRows,
     });
   }, [pagination, filters, categoryIds]);
-
-  const fetchCategories = async () => {
-    const categories = await transactionService.getTransactionCategories();
-    setCategories(categories);
-  };
 
   const createTransaction = async (transaction: CreateTransactionInterface) => {
     // await transactionService.createTransaction(transaction);
@@ -327,8 +323,6 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
   return (
     <TransactionContext.Provider
       value={{
-        categories,
-        fetchCategories,
         createTransaction,
         fetchTransactions,
         totalTransactions,

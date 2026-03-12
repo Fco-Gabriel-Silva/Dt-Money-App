@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import DateTimePicker from "react-native-modal-datetime-picker";
 import { format, isValid } from "date-fns";
 import { useTransactionContext } from "@/context/transaction.context";
 import { ptBR } from "date-fns/locale";
 import clsx from "clsx";
+import { Text } from "@/components/Text";
 
 export const DateFilter = () => {
   const { filters, handleFilters } = useTransactionContext();
@@ -39,7 +40,7 @@ export const DateFilter = () => {
 
   return (
     <>
-      <Text className="text-base font-medium mb-5 text-gray-600">Data</Text>
+      <Text className="text-base font-normal mb-5 text-gray-600">Data</Text>
 
       <View className="flex-row justify-between mb-6">
         <View className="w-[48%]">

@@ -1,9 +1,10 @@
-import { colors } from "@/shared/colors";
+import { colors } from "@/styles/colors";
 import { TransactionTypes } from "@/shared/enums/transaction-types";
 import { MaterialIcons } from "@expo/vector-icons";
 import clsx from "clsx";
 import { FC } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
+import { Text } from "../Text";
 
 interface Props {
   setTransactionType: (type: TransactionTypes) => void;
@@ -35,7 +36,7 @@ export const TransactionTypeSeletor: FC<Props> = ({
           size={30}
           className="mr-2"
         />
-        <Text className="text-white font-bold">Entrada</Text>
+        <Text className="text-white font-heading">Entrada</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -57,7 +58,7 @@ export const TransactionTypeSeletor: FC<Props> = ({
           size={30}
           className="mr-2"
         />
-        <Text className="text-white font-bold">Saída</Text>
+        <Text className="text-white font-heading">Saída</Text>
       </TouchableOpacity>
     </View>
   );

@@ -1,8 +1,8 @@
+import { Text } from "@/components/Text";
 import { useTransactionContext } from "@/context/transaction.context";
-import { colors } from "@/shared/colors";
 import { TransactionTypes } from "@/shared/enums/transaction-types";
 import Checkbox from "expo-checkbox";
-import { Text, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 
 export const TypeFilter = () => {
   const { handleFilters, filters } = useTransactionContext();
@@ -13,7 +13,7 @@ export const TypeFilter = () => {
 
   return (
     <View className="mb-6">
-      <Text className="text-base font-medium mb-5 text-gray-600">
+      <Text className="text-base font-normal mb-5 text-gray-600">
         Tipo de Transação
       </Text>
       <TouchableOpacity

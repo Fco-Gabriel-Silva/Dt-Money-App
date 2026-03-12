@@ -1,15 +1,15 @@
 import { useTransactionContext } from "@/context/transaction.context";
-import { colors } from "@/shared/colors";
 import { TransactionTypes } from "@/shared/enums/transaction-types";
 import { MaterialIcons } from "@expo/vector-icons";
 import { FC } from "react";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ICONS } from "./strategies/icon-strategy";
 import { CARD_DATA } from "./strategies/card-data-strategy";
 import { moneyMapper } from "@/shared/utils/money-mapper";
 import clsx from "clsx";
+import { Text } from "@/components/Text";
 
 export type TransactionCardType = TransactionTypes | "total";
 
@@ -64,7 +64,7 @@ export const TransactionCard: FC<Props> = ({ amount, type }) => {
         <MaterialIcons name={iconData.name} size={26} color={iconData.color} />
       </View>
       <View>
-        <Text className="text-2xl text-gray-400 font-bold">
+        <Text className="text-2xl text-gray-400 font-heading">
           R$ {moneyMapper(amount)}
         </Text>
         {renderDateInfo()}

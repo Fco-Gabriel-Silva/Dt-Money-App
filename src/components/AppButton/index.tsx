@@ -1,8 +1,9 @@
-import { Text, TouchableOpacity, TouchableOpacityProps } from "react-native";
+import { TouchableOpacity, TouchableOpacityProps } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { FC, PropsWithChildren } from "react";
 import clsx from "clsx";
-import { colors } from "@/shared/colors";
+import { colors } from "@/styles/colors";
+import { Text } from "../Text";
 
 type AppButtonMode = "fill" | "outline";
 
@@ -28,7 +29,7 @@ export const AppButton: FC<PropsWithChildren<AppButtonParams>> = ({
       className={clsx(
         widthFull && "w-full",
         className,
-        "rounded-xl px-5 flex-row items-center h-button",
+        "font-sans rounded-xl px-5 flex-row items-center h-button",
         iconName ? "justify-between" : "justify-center",
         {
           "bg-accent-brand": isFill,

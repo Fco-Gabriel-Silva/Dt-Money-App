@@ -9,15 +9,6 @@ import { UpdateTransactionInterface } from "@/shared/interfaces/https/update-tra
 import { Transaction } from "@/shared/interfaces/transaction";
 import qs from "qs";
 
-export const getTransactionCategories = async (): Promise<
-  TransactionCategory[]
-> => {
-  const { data } = await dtMoneyApi.get<TransactionCategory[]>(
-    "/transaction/categories",
-  );
-  return data;
-};
-
 export const createTransaction = async (
   transaction: CreateTransactionInterface | Transaction,
 ) => {

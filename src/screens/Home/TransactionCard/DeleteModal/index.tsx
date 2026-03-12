@@ -1,10 +1,10 @@
-import { colors } from "@/shared/colors";
+import { Text } from "@/components/Text";
+import { colors } from "@/styles/colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import { FC } from "react";
 import {
   ActivityIndicator,
   Modal,
-  Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,

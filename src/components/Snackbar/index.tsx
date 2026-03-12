@@ -1,5 +1,6 @@
 import { useSnackbarContext } from "@/context/snackbar.context";
-import { Text, View } from "react-native";
+import { View } from "react-native";
+import { Text } from "../Text";
 
 export const Snackbar = () => {
   const { message, type } = useSnackbarContext();
@@ -14,7 +15,7 @@ export const Snackbar = () => {
     <View
       className={`absolute bottom-10 self-center w-[90%] h-[50px] rounded-xl ${bgColor} justify-center z-10 p-2`}
     >
-      <Text className="text-white text-base font-bold">{message}</Text>
+      <Text className="text-white text-base font-heading">{message}</Text>
     </View>
   );
 };

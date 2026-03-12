@@ -1,4 +1,4 @@
-import { colors } from "@/shared/colors";
+import { colors } from "@/styles/colors";
 import { TransactionTypes } from "@/shared/enums/transaction-types";
 import { TransactionCardType } from "..";
 import { MaterialIcons } from "@expo/vector-icons";

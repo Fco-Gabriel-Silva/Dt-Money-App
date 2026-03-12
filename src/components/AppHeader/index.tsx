@@ -1,6 +1,7 @@
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { Image, TouchableOpacity, View } from "react-native";
+import { Text } from "../Text";
 import { MaterialIcons } from "@expo/vector-icons";
-import { colors } from "@/shared/colors";
+import { colors } from "@/styles/colors";
 import { useAuthContext } from "@/context/auth.context";
 import { useBottomSheetContext } from "@/context/bottomsheet.context";
 import { NewTransaction } from "../NewTransaction";
@@ -31,7 +32,7 @@ export const AppHeader = () => {
         }}
         className="bg-accent-brand w-[130px] items-center justify-center rounded-xl h-[50px]"
       >
-        <Text className="text-white font-bold text-sm">Nova transação</Text>
+        <Text className="text-white font-heading text-sm">Nova transação</Text>
       </TouchableOpacity>
     </View>
   );

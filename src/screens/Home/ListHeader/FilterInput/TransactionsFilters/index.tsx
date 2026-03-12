@@ -1,6 +1,6 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { colors } from "@/shared/colors";
+import { colors } from "@/styles/colors";
 import { useBottomSheetContext } from "@/context/bottomsheet.context";
 import { DateFilter } from "./DateFilter";
 import { CategoryFilter } from "./CategoryFilter";
@@ -8,6 +8,7 @@ import { TypeFilter } from "./TypeFilter";
 import { AppButton } from "@/components/AppButton";
 import { useTransactionContext } from "@/context/transaction.context";
 import { useErrorHandler } from "@/shared/hooks/useErrorHandler";
+import { Text } from "@/components/Text";
 
 export const TransactionsFilters = () => {
   const { closeBottomSheet } = useBottomSheetContext();
@@ -42,7 +43,7 @@ export const TransactionsFilters = () => {
   return (
     <View className="flex-1 bg-gray[1000] p-6">
       <View className="flex-row justify-between">
-        <Text className="text-xl font-bold mb-5 text-white">
+        <Text className="text-xl font-heading mb-5 text-white">
           Filtrar transações
         </Text>
         <TouchableOpacity onPress={closeBottomSheet}>

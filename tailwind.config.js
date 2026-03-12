@@ -1,13 +1,11 @@
-const { colors } = require("./src/shared/colors");
+const { colors } = require("./src/styles/colors");
+const { fontFamily } = require("./src/styles/fontFamily");
 
 module.exports = {
   content: ["./src/**/*.{ts,tsx}"],
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
-      fontFamily: {
-        roboto: ["Roboto", "sans-serif"],
-      },
       fontSize: {
         sm: "14px",
         base: "16px",
@@ -21,6 +19,7 @@ module.exports = {
         button: 57,
       },
       colors,
+      fontFamily,
     },
   },
   plugins: [],

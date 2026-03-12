@@ -15,12 +15,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ListHeader } from "./ListHeader";
 import { TransactionCard } from "./TransactionCard";
 import { EmptyList } from "./EmptyList";
-import { colors } from "@/shared/colors";
+import { colors } from "@/styles/colors";
+import { useCategoryContext } from "@/context/category.context";
 
 export const Home = () => {
   const { handleLogout } = useAuthContext();
+  const { fetchCategories } = useCategoryContext();
   const {
-    fetchCategories,
     fetchTransactions,
     transactions,
     refreshTransactions,
@@ -81,31 +82,29 @@ export const Home = () => {
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-background-secondary">
-      <FlatList
-        className="bg-background-secondary"
-        data={transactions}
-        keyExtractor={({ id }) => `transaction-${id}`}
-        renderItem={({ item }) => <TransactionCard transaction={item} />}
-        ListHeaderComponent={ListHeader}
-        onEndReached={handleLoadMoreTransactions}
-        ListEmptyComponent={loadings.initial ? null : EmptyList}
-        onEndReachedThreshold={0.5}
-        ListFooterComponent={
-          loadings.loadMore ? (
-            <ActivityIndicator
-              color={colors["accent-brand-light"]}
-              size={"large"}
-            />
-          ) : null
-        }
-        refreshControl={
-          <RefreshControl
-            refreshing={loadings.refresh}
-            onRefresh={handleRefreshTransactions}
+    <FlatList
+      className="bg-background-secondary"
+      data={transactions}
+      keyExtractor={({ id }) => `transaction-${id}`}
+      renderItem={({ item }) => <TransactionCard transaction={item} />}
+      ListHeaderComponent={ListHeader}
+      onEndReached={handleLoadMoreTransactions}
+      ListEmptyComponent={loadings.initial ? null : EmptyList}
+      onEndReachedThreshold={0.5}
+      ListFooterComponent={
+        loadings.loadMore ? (
+          <ActivityIndicator
+            color={colors["accent-brand-light"]}
+            size={"large"}
           />
-        }
-      />
-    </SafeAreaView>
+        ) : null
+      }
+      refreshControl={
+        <RefreshControl
+          refreshing={loadings.refresh}
+          onRefresh={handleRefreshTransactions}
+        />
+      }
+    />
   );
 };

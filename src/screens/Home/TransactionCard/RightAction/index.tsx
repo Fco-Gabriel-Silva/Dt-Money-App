@@ -3,7 +3,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { FC, useState } from "react";
 import { DeleteModal } from "../DeleteModal";
 import { useErrorHandler } from "@/shared/hooks/useErrorHandler";
-import { colors } from "@/shared/colors";
+import { colors } from "@/styles/colors";
 import * as transactionService from "@/shared/services/dt-money/transaction.service";
 import { useSnackbarContext } from "@/context/snackbar.context";
 import { useTransactionContext } from "@/context/transaction.context";
