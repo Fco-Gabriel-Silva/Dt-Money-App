@@ -14,6 +14,8 @@ import {
 } from "@expo-google-fonts/poppins";
 import { ActivityIndicator, View } from "react-native";
 import { CategoryContextProvider } from "@/context/category.context";
+import { DatabaseProvider } from "@nozbe/watermelondb/DatabaseProvider";
+import { database } from "@/databases";
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -30,19 +32,21 @@ export default function App() {
     );
   }
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SnackbarContextProvider>
-        <AuthContextProvider>
-          <CategoryContextProvider>
-            <TransactionContextProvider>
-              <BottomSheetProvider>
-                <NavigationRoutes />
-                <Snackbar />
-              </BottomSheetProvider>
-            </TransactionContextProvider>
-          </CategoryContextProvider>
-        </AuthContextProvider>
-      </SnackbarContextProvider>
-    </GestureHandlerRootView>
+    <DatabaseProvider database={database}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SnackbarContextProvider>
+          <AuthContextProvider>
+            <CategoryContextProvider>
+              <TransactionContextProvider>
+                <BottomSheetProvider>
+                  <NavigationRoutes />
+                  <Snackbar />
+                </BottomSheetProvider>
+              </TransactionContextProvider>
+            </CategoryContextProvider>
+          </AuthContextProvider>
+        </SnackbarContextProvider>
+      </GestureHandlerRootView>
+    </DatabaseProvider>
   );
 }
