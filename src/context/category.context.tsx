@@ -34,8 +34,16 @@ export const CategoryContextProvider: FC<PropsWithChildren> = ({
 
   const refreshCategories = async () => {
     try {
-      const categories = await categoryCollection.query().fetch();
-      setCategories(categories);
+      const localCategories = await categoryCollection.query().fetch();
+
+      const formattedCategories = localCategories.map((category) => ({
+        id: category.id,
+        name: category.name,
+        color: category.color,
+        userId: category.userId,
+      }));
+
+      setCategories(formattedCategories);
     } catch (error) {
       console.error("Erro ao atualizar categorias", error);
     }
