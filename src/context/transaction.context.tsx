@@ -1,4 +1,3 @@
-import { TransactionCategory } from "@/shared/interfaces/https/transaction-category-response";
 import {
   createContext,
   FC,
@@ -9,7 +8,6 @@ import {
   useState,
 } from "react";
 import * as transactionService from "@/shared/services/dt-money/transaction.service";
-import * as categoryService from "@/shared/services/dt-money/category.service";
 import { CreateTransactionInterface } from "@/shared/interfaces/https/create-transaction-request";
 import { Transaction } from "@/shared/interfaces/transaction";
 import { TotalTransactions } from "@/shared/interfaces/total-transaction";
@@ -20,8 +18,10 @@ import {
 } from "@/shared/interfaces/https/get-transactions-request";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { transactionTypesLocal } from "@/shared/enums/transaction-types-local";
-import { CreateCategoryRequest } from "@/shared/interfaces/https/create-category-request";
 import { useCategoryContext } from "./category.context";
+import { database } from "@/databases";
+import { TransactionModel } from "@/databases/model/transactionModel";
+import { Q } from "@nozbe/watermelondb";
 
 const filtersInitialValues = {
   categoryIds: {},
@@ -78,6 +78,8 @@ export const TransactionContext = createContext({} as TransactionTextType);
 export const TransactionContextProvider: FC<PropsWithChildren> = ({
   children,
 }) => {
+  const transactionCollection = database.get<TransactionModel>("transactions");
+
   const { categories } = useCategoryContext();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [searchText, setSearchText] = useState("");
@@ -144,48 +146,22 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
   }, [pagination, filters, categoryIds]);
 
   const createTransaction = async (transaction: CreateTransactionInterface) => {
-    // await transactionService.createTransaction(transaction);
-
-    const localTransactions = await getLocalTransactions();
-
-    const categoryFull = categories.find(
-      (c) => c.id === transaction.categoryId,
-    );
-
-    if (!categoryFull) {
+    try {
+      await database.write(async () => {
+        await transactionCollection.create((newTransaction) => {
+          newTransaction.description = transaction.description;
+          newTransaction.value = transaction.value;
+          newTransaction.typeId = transaction.typeId;
+          newTransaction.categoryId = String(transaction.categoryId);
+        });
+      });
+    } catch (error) {
       console.error(
-        "Erro Crítico: Tentativa de criar transação com categoria inexistente na lista local.",
+        "Erro crítico ao criar transação no banco de dados:",
+        error,
       );
-      return;
+      throw error;
     }
-
-    const typeFull =
-      transaction.typeId === transactionTypesLocal.REVENUE.id
-        ? transactionTypesLocal.REVENUE
-        : transactionTypesLocal.EXPENSE;
-
-    const newTransactionFull: Transaction = {
-      id: Date.now(),
-      typeId: transaction.typeId,
-      categoryId: transaction.categoryId,
-      description: transaction.description,
-      value: transaction.value,
-      isLocal: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      deletedAt: null,
-      type: typeFull,
-      category: categoryFull,
-    };
-
-    const newTransactionsList = [newTransactionFull, ...localTransactions];
-
-    await AsyncStorage.setItem(
-      "dt-money-transaction-local",
-      JSON.stringify(newTransactionsList),
-    );
-
-    await refreshTransactions();
   };
 
   const updateTransaction = async (
