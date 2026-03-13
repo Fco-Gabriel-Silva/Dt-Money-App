@@ -33,7 +33,7 @@ export const CategoryContextProvider: FC<PropsWithChildren> = ({
 
   const refreshCategories = async () => {
     try {
-      const categories = await categoryService.getTransactionCategories();
+      const categories = await categoryCollection.query().fetch();
       setCategories(categories);
     } catch (error) {
       console.error("Erro ao atualizar categorias", error);
