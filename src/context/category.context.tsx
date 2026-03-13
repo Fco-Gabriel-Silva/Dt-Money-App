@@ -97,7 +97,15 @@ export const CategoryContextProvider: FC<PropsWithChildren> = ({
 
   const updateCategory = async (data: UpdateCategoryRequest) => {
     try {
-      await categoryService.updateCategory(data);
+      await database.write(async () => {
+        const categoryToUpdate = await categoryCollection.find(String(data.id));
+
+        await categoryToUpdate.update((category) => {
+          category.name = data.name;
+          category.color = data.color;
+          category.userId = data.userId;
+        });
+      });
       await refreshCategories();
     } catch (error) {
       throw error;
