@@ -12,7 +12,7 @@ import { UpdateCategoryRequest } from "@/shared/interfaces/https/update-category
 import { database } from "@/databases";
 import { TransactionCategoryModel } from "@/databases/model/transactionCategoryModel";
 
-type CategoryTextType = {
+type CategoryContextType = {
   refreshCategories: () => Promise<void>;
   fetchCategories: () => Promise<void>;
   categories: TransactionCategory[];
@@ -21,7 +21,7 @@ type CategoryTextType = {
   deleteCategory: (id: number | string) => Promise<void>;
 };
 
-export const CategoryContext = createContext({} as CategoryTextType);
+export const CategoryContext = createContext({} as CategoryContextType);
 
 export const CategoryContextProvider: FC<PropsWithChildren> = ({
   children,
