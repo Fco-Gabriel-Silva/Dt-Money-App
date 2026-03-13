@@ -6,7 +6,6 @@ import { colors } from "@/styles/colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import { FC, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
-import * as categoryService from "@/shared/services/dt-money/category.service";
 import { DeleteModal } from "./DeleteModal";
 
 interface Params {
@@ -17,7 +16,7 @@ export const RightAction: FC<Params> = ({ category }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const { notify } = useSnackbarContext();
-  const { refreshCategories } = useCategoryContext();
+  const { deleteCategory, refreshCategories } = useCategoryContext();
 
   const showModal = () => {
     setModalVisible(true);
@@ -32,7 +31,7 @@ export const RightAction: FC<Params> = ({ category }) => {
   const handleDeleteTransaction = async () => {
     try {
       setLoading(true);
-      await categoryService.deleteCategory(category.id);
+      await deleteCategory(category.id);
       notify({
         message: "Categoria deletada com sucesso",
         messageType: "SUCCESS",
