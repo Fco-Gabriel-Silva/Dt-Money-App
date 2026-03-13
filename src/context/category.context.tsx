@@ -18,6 +18,7 @@ type CategoryTextType = {
   categories: TransactionCategory[];
   createCategory: (data: CreateCategoryRequest) => Promise<void>;
   updateCategory: (data: UpdateCategoryRequest) => Promise<void>;
+  deleteCategory: (id: number | string) => Promise<void>;
 };
 
 export const CategoryContext = createContext({} as CategoryTextType);
@@ -112,6 +113,18 @@ export const CategoryContextProvider: FC<PropsWithChildren> = ({
     }
   };
 
+  const deleteCategory = async (id: number | string) => {
+    try {
+      await database.write(async () => {
+        const categoryToDelete = await categoryCollection.find(String(id));
+        await categoryToDelete.markAsDeleted();
+      });
+      await refreshCategories();
+    } catch (error) {
+      throw error;
+    }
+  };
+
   return (
     <CategoryContext.Provider
       value={{
@@ -120,6 +133,7 @@ export const CategoryContextProvider: FC<PropsWithChildren> = ({
         createCategory,
         refreshCategories,
         updateCategory,
+        deleteCategory,
       }}
     >
       {children}
