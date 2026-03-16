@@ -1,5 +1,5 @@
 export interface UpdateCategoryRequest {
-  id: number;
+  id: number | string;
   name: string;
   color: string;
   userId: number;
