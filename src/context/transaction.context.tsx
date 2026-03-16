@@ -122,28 +122,83 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
   };
 
   const refreshTransactions = useCallback(async () => {
-    const { page, perPage } = pagination;
+    try {
+      const { page, perPage } = pagination;
 
-    const transactionResponse = await transactionService.getTransactions({
-      page: 1,
-      perPage: page * perPage,
-      ...filters,
-      categoryIds,
-    });
+      const totalRows = await transactionCollection.query().fetchCount();
 
-    const getLocal = await getLocalTransactions();
+      const totalPages = Math.ceil(totalRows / perPage);
 
-    const allTransactions = [...getLocal, ...transactionResponse.data];
+      const itemsToSkip = (page - 1) * perPage;
 
-    setTransactions(allTransactions);
-    setTotalTransactions(transactionResponse.totalTransactions);
-    setPagination({
-      ...pagination,
-      page,
-      totalPages: transactionResponse.totalPages,
-      totalRows: transactionResponse.totalRows,
-    });
-  }, [pagination, filters, categoryIds]);
+      const localTransactions = await transactionCollection
+        .query(
+          Q.sortBy("created_at", Q.desc),
+          Q.skip(itemsToSkip),
+          Q.take(perPage),
+        )
+        .fetch();
+
+      const formattedTransactions = localTransactions.map((t) => {
+        let type =
+          transactionTypesLocal.EXPENSE.id === t.typeId
+            ? transactionTypesLocal.EXPENSE
+            : transactionTypesLocal.REVENUE;
+
+        let category = categories.find(
+          (c) => String(c.id) === String(t.categoryId),
+        );
+
+        return {
+          id: t.id as any,
+          description: t.description,
+          value: t.value,
+          typeId: t.typeId,
+          categoryId: t.categoryId,
+          createdAt: t.createdAt,
+          updatedAt: t.updatedAt,
+          deletedAt: t.deletedAt ?? null,
+          type: {
+            id: type.id,
+            name: type.name,
+          },
+          category: {
+            id: category?.id || t.categoryId,
+            name: category?.name || "Desconhecida",
+          },
+        };
+      });
+
+      setTransactions(formattedTransactions);
+
+      setPagination({
+        ...pagination,
+        page,
+        totalPages,
+        totalRows,
+      });
+
+      const allTransactionsForBalance = await transactionCollection
+        .query()
+        .fetch();
+
+      const revenue = allTransactionsForBalance
+        .filter((t) => t.typeId === 1)
+        .reduce((acc, t) => acc + t.value, 0);
+
+      const expense = allTransactionsForBalance
+        .filter((t) => t.typeId === 2)
+        .reduce((acc, t) => acc + t.value, 0);
+
+      setTotalTransactions({
+        revenue,
+        expense,
+        total: revenue - expense,
+      });
+    } catch (error) {
+      console.error("Erro ao buscar transações locais:", error);
+    }
+  }, [pagination]);
 
   const createTransaction = async (transaction: CreateTransactionInterface) => {
     try {
@@ -155,6 +210,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
           newTransaction.categoryId = String(transaction.categoryId);
         });
       });
+      await refreshTransactions();
     } catch (error) {
       console.error(
         "Erro crítico ao criar transação no banco de dados:",

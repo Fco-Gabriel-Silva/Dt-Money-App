@@ -8,7 +8,13 @@ export const transactionSchema = Yup.object().shape({
   typeId: Yup.number()
     .min(1, "Selecione um tipo de transação")
     .required("Tipo de transação é obrigatório"),
-  categoryId: Yup.number()
-    .min(1, "Selecione uma categoria de transação")
-    .required("Categoria de transação é obrigatória"),
+  categoryId: Yup.lazy((value) =>
+    typeof value === "number"
+      ? Yup.number()
+          .min(1, "Selecione uma categoria de transação")
+          .required("Categoria de transação é obrigatória")
+      : Yup.string()
+          .min(1, "Selecione uma categoria de transação")
+          .required("Categoria de transação é obrigatória"),
+  ),
 });
