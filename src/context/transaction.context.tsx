@@ -55,6 +55,7 @@ type TransactionTextType = {
   updateTransaction: (
     transaction: UpdateTransactionInterface | Transaction,
   ) => Promise<void>;
+  deleteTransaction: (id: number | string) => Promise<void>;
   fetchTransactions: (params: FetchTransactionsParams) => Promise<void>;
   totalTransactions: TotalTransactions;
   transactions: Transaction[];
@@ -246,6 +247,24 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
     }
   };
 
+  const deleteTransaction = async (id: number | string) => {
+    try {
+      await database.write(async () => {
+        const transactionToDelete = await transactionCollection.find(
+          String(id),
+        );
+        await transactionToDelete.markAsDeleted();
+      });
+      await refreshTransactions();
+    } catch (error) {
+      console.error(
+        "Erro crítico ao deletar transação no banco de dados:",
+        error,
+      );
+      throw error;
+    }
+  };
+
   const fetchTransactions = useCallback(
     async ({ page = 1 }: FetchTransactionsParams) => {
       const transactionResponse = await transactionService.getTransactions({
@@ -342,6 +361,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
         totalTransactions,
         transactions,
         updateTransaction,
+        deleteTransaction,
         refreshTransactions,
         loadMoreTransactions,
         handleLoadings,
