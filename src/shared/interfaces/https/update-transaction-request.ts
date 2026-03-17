@@ -1,7 +1,7 @@
 export interface UpdateTransactionInterface {
-  id: number;
+  id: number | string;
   description: string;
   typeId: number;
-  categoryId: number;
+  categoryId: number | string;
   value: number;
 }

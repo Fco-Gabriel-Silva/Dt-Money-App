@@ -1,6 +1,6 @@
 export interface Transaction {
   id: number | string;
-  typeId: number | string;
+  typeId: number;
   categoryId: number | string;
   description: string;
   value: number;
@@ -9,7 +9,7 @@ export interface Transaction {
   updatedAt: Date | string;
   deletedAt: Date | null;
   type: {
-    id: number | string;
+    id: number;
     name: string;
   };
   category: {
