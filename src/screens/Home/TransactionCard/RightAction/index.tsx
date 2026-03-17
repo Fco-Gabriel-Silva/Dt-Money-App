@@ -18,7 +18,7 @@ export const RightAction: FC<Params> = ({ transaction }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const { notify } = useSnackbarContext();
-  const { refreshTransactions, getLocalTransactions } = useTransactionContext();
+  const { refreshTransactions, deleteTransaction } = useTransactionContext();
 
   const showModal = () => {
     setModalVisible(true);
@@ -33,20 +33,7 @@ export const RightAction: FC<Params> = ({ transaction }) => {
   const handleDeleteTransaction = async () => {
     try {
       setLoading(true);
-      if (transaction.isLocal) {
-        const localTransactions = await getLocalTransactions();
-
-        const filterTransactionsLocal = localTransactions.filter(
-          (t: Transaction) => t.id !== transaction.id,
-        );
-
-        await AsyncStorage.setItem(
-          "dt-money-transaction-local",
-          JSON.stringify(filterTransactionsLocal),
-        );
-      } else {
-        await transactionService.deleteTransaction(transaction.id);
-      }
+      await deleteTransaction(transaction.id);
       notify({
         message: "Transação deletada com sucesso",
         messageType: "SUCCESS",

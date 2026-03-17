@@ -9,7 +9,7 @@ export const CategoryFilter = () => {
   const { categories } = useCategoryContext();
   const { filters, handleCategoryFilter } = useTransactionContext();
 
-  const handleChangeCategory = (categoryId: number) => {
+  const handleChangeCategory = (categoryId: number | string) => {
     handleCategoryFilter(categoryId);
   };
 
@@ -25,10 +25,12 @@ export const CategoryFilter = () => {
           className="flex-row items-center py-2"
         >
           <Checkbox
-            value={Boolean(filters.categoryIds[id]) || false}
+            value={Boolean(filters.categoryIds[String(id)]) || false}
             onValueChange={() => handleChangeCategory(id)}
             color={
-              filters.categoryIds[id] ? colors["accent-brand-light"] : undefined
+              filters.categoryIds[String(id)]
+                ? colors["accent-brand-light"]
+                : undefined
             }
             className="mr-4"
           />

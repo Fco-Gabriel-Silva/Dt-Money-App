@@ -17,8 +17,8 @@ import { AppButton } from "../AppButton";
 import { useCategoryContext } from "@/context/category.context";
 
 interface Props {
-  selectedCategory?: number;
-  onSelect: (categoryId: number) => void;
+  selectedCategory?: number | string;
+  onSelect: (categoryId: number | string) => void;
 }
 
 export const SelectCategoryModal: FC<Props> = ({
@@ -30,7 +30,7 @@ export const SelectCategoryModal: FC<Props> = ({
   const { openBottomSheet } = useBottomSheetContext();
   const handleModal = () => setShowModal((prevState) => !prevState);
 
-  const handleSelect = (categoryId: number) => {
+  const handleSelect = (categoryId: number | string) => {
     onSelect(categoryId);
     setShowModal(false);
   };

@@ -9,11 +9,18 @@ import { AppButton } from "@/components/AppButton";
 import { useTransactionContext } from "@/context/transaction.context";
 import { useErrorHandler } from "@/shared/hooks/useErrorHandler";
 import { Text } from "@/components/Text";
+import { useEffect } from "react";
 
 export const TransactionsFilters = () => {
   const { closeBottomSheet } = useBottomSheetContext();
-  const { fetchTransactions, handleLoadings, resetFilter } =
-    useTransactionContext();
+  const {
+    fetchTransactions,
+    handleLoadings,
+    resetFilter,
+    refreshTransactions,
+    searchText,
+    filters,
+  } = useTransactionContext();
   const { handleError } = useErrorHandler();
 
   const handleFetchTranscations = async () => {
@@ -39,6 +46,10 @@ export const TransactionsFilters = () => {
       closeBottomSheet();
     }
   };
+
+  useEffect(() => {
+    refreshTransactions();
+  }, [searchText, filters, fetchTransactions]);
 
   return (
     <View className="flex-1 bg-gray[1000] p-6">

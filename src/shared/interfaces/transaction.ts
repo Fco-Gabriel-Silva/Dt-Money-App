@@ -1,10 +1,9 @@
 export interface Transaction {
-  id: number;
+  id: number | string;
   typeId: number;
-  categoryId: number;
+  categoryId: number | string;
   description: string;
   value: number;
-  isLocal?: boolean;
   createdAt: Date | string;
   updatedAt: Date | string;
   deletedAt: Date | null;
@@ -13,7 +12,7 @@ export interface Transaction {
     name: string;
   };
   category: {
-    id: number;
+    id: number | string;
     name: string;
   };
 }
