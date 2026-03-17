@@ -7,7 +7,6 @@ import {
   useMemo,
   useState,
 } from "react";
-import * as transactionService from "@/shared/services/dt-money/transaction.service";
 import { CreateTransactionInterface } from "@/shared/interfaces/https/create-transaction-request";
 import { Transaction } from "@/shared/interfaces/transaction";
 import { TotalTransactions } from "@/shared/interfaces/total-transaction";
@@ -16,7 +15,6 @@ import {
   Filters,
   Pagination,
 } from "@/shared/interfaces/https/get-transactions-request";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { transactionTypesLocal } from "@/shared/enums/transaction-types-local";
 import { useCategoryContext } from "./category.context";
 import { database } from "@/databases";
@@ -50,7 +48,7 @@ interface HandleFiltersParams {
   value: Date | Boolean | number;
 }
 
-type TransactionTextType = {
+type TransactionContextType = {
   createTransaction: (transaction: CreateTransactionInterface) => Promise<void>;
   updateTransaction: (
     transaction: UpdateTransactionInterface | Transaction,
@@ -70,18 +68,16 @@ type TransactionTextType = {
   handleFilters: (params: HandleFiltersParams) => void;
   handleCategoryFilter: (categoryId: number) => void;
   resetFilter: () => Promise<void>;
-  syncTransaction: (transaction: Transaction) => Promise<void>;
-  getLocalTransactions: () => Promise<Transaction[]>;
 };
 
-export const TransactionContext = createContext({} as TransactionTextType);
+export const TransactionContext = createContext({} as TransactionContextType);
 
 export const TransactionContextProvider: FC<PropsWithChildren> = ({
   children,
 }) => {
   const transactionCollection = database.get<TransactionModel>("transactions");
-
   const { categories } = useCategoryContext();
+
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [searchText, setSearchText] = useState("");
   const [filters, setFilters] = useState<Filters>(filtersInitialValues);
@@ -93,7 +89,11 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
   });
 
   const [totalTransactions, setTotalTransactions] = useState<TotalTransactions>(
-    { expense: 0, revenue: 0, total: 0 },
+    {
+      expense: 0,
+      revenue: 0,
+      total: 0,
+    },
   );
 
   const [pagination, setPagination] = useState<Pagination>({
@@ -112,94 +112,134 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
   const handleLoadings = ({ key, value }: HandleLoadingParams) =>
     setLoadings((prevValues) => ({ ...prevValues, [key]: value }));
 
-  const getLocalTransactions = async () => {
-    const localTransactions = await AsyncStorage.getItem(
-      "dt-money-transaction-local",
-    );
-    const parsedTransactions = localTransactions
-      ? JSON.parse(localTransactions)
-      : [];
-    return parsedTransactions;
-  };
+  const fetchTransactions = useCallback(
+    async ({ page = 1 }: FetchTransactionsParams) => {
+      try {
+        const perPage = pagination.perPage;
+        const itemsToSkip = (page - 1) * perPage;
+
+        const baseConditions: Q.Clause[] = [];
+
+        if (searchText) {
+          baseConditions.push(
+            Q.where(
+              "description",
+              Q.like(`%${Q.sanitizeLikeString(searchText)}%`),
+            ),
+          );
+        }
+
+        if (filters?.typeId) {
+          baseConditions.push(Q.where("type_id", filters.typeId));
+        }
+
+        if (categoryIds && categoryIds.length > 0) {
+          const idsAsStrings = categoryIds.map(String);
+          baseConditions.push(Q.where("category_id", Q.oneOf(idsAsStrings)));
+        }
+
+        if (filters.from) {
+          const fromTimestamp = new Date(filters.from).getTime();
+          baseConditions.push(Q.where("created_at", Q.gte(fromTimestamp)));
+        }
+
+        if (filters.to) {
+          const toDate = new Date(filters.to);
+          toDate.setHours(23, 59, 59, 999);
+          const toTimestamp = toDate.getTime();
+          baseConditions.push(Q.where("created_at", Q.lte(toTimestamp)));
+        }
+
+        const localTransactions = await transactionCollection
+          .query(
+            ...baseConditions,
+            Q.sortBy("created_at", Q.desc),
+            Q.skip(itemsToSkip),
+            Q.take(perPage),
+          )
+          .fetch();
+
+        const formattedTransactions = localTransactions.map((t) => {
+          let type =
+            transactionTypesLocal.EXPENSE.id === t.typeId
+              ? transactionTypesLocal.EXPENSE
+              : transactionTypesLocal.REVENUE;
+
+          let category = categories.find(
+            (c) => String(c.id) === String(t.categoryId),
+          );
+
+          return {
+            id: t.id as any,
+            description: t.description,
+            value: t.value,
+            typeId: t.typeId,
+            categoryId: t.categoryId,
+            createdAt: t.createdAt,
+            updatedAt: t.updatedAt,
+            deletedAt: t.deletedAt ?? null,
+            type: {
+              id: type.id,
+              name: type.name,
+            },
+            category: {
+              id: category?.id || t.categoryId,
+              name: category?.name || "Desconhecida",
+            },
+          };
+        });
+
+        if (page === 1) {
+          setTransactions(formattedTransactions);
+        } else {
+          setTransactions((prev) => [...prev, ...formattedTransactions]);
+        }
+
+        const totalRows = await transactionCollection
+          .query(...baseConditions)
+          .fetchCount();
+        const totalPages = Math.ceil(totalRows / perPage);
+
+        setPagination((prev) => ({
+          ...prev,
+          page,
+          totalRows,
+          totalPages,
+        }));
+
+        const allFilteredForBalance = await transactionCollection
+          .query(...baseConditions)
+          .fetch();
+        const revenue = allFilteredForBalance
+          .filter((t) => t.typeId === 1)
+          .reduce((acc, t) => acc + t.value, 0);
+        const expense = allFilteredForBalance
+          .filter((t) => t.typeId === 2)
+          .reduce((acc, t) => acc + t.value, 0);
+
+        setTotalTransactions({
+          revenue,
+          expense,
+          total: revenue - expense,
+        });
+      } catch (error) {
+        console.error(
+          "Erro ao buscar transações paginadas e filtradas:",
+          error,
+        );
+      }
+    },
+    [pagination.perPage, searchText, filters, categoryIds, categories],
+  );
 
   const refreshTransactions = useCallback(async () => {
-    try {
-      const { page, perPage } = pagination;
+    await fetchTransactions({ page: 1 });
+  }, [fetchTransactions]);
 
-      const totalRows = await transactionCollection.query().fetchCount();
-
-      const totalPages = Math.ceil(totalRows / perPage);
-
-      const itemsToSkip = (page - 1) * perPage;
-
-      const localTransactions = await transactionCollection
-        .query(
-          Q.sortBy("created_at", Q.desc),
-          Q.skip(itemsToSkip),
-          Q.take(perPage),
-        )
-        .fetch();
-
-      const formattedTransactions = localTransactions.map((t) => {
-        let type =
-          transactionTypesLocal.EXPENSE.id === t.typeId
-            ? transactionTypesLocal.EXPENSE
-            : transactionTypesLocal.REVENUE;
-
-        let category = categories.find(
-          (c) => String(c.id) === String(t.categoryId),
-        );
-
-        return {
-          id: t.id as any,
-          description: t.description,
-          value: t.value,
-          typeId: t.typeId,
-          categoryId: t.categoryId,
-          createdAt: t.createdAt,
-          updatedAt: t.updatedAt,
-          deletedAt: t.deletedAt ?? null,
-          type: {
-            id: type.id,
-            name: type.name,
-          },
-          category: {
-            id: category?.id || t.categoryId,
-            name: category?.name || "Desconhecida",
-          },
-        };
-      });
-
-      setTransactions(formattedTransactions);
-
-      setPagination({
-        ...pagination,
-        page,
-        totalPages,
-        totalRows,
-      });
-
-      const allTransactionsForBalance = await transactionCollection
-        .query()
-        .fetch();
-
-      const revenue = allTransactionsForBalance
-        .filter((t) => t.typeId === 1)
-        .reduce((acc, t) => acc + t.value, 0);
-
-      const expense = allTransactionsForBalance
-        .filter((t) => t.typeId === 2)
-        .reduce((acc, t) => acc + t.value, 0);
-
-      setTotalTransactions({
-        revenue,
-        expense,
-        total: revenue - expense,
-      });
-    } catch (error) {
-      console.error("Erro ao buscar transações locais:", error);
-    }
-  }, [pagination]);
+  const loadMoreTransactions = useCallback(() => {
+    if (loadings.loadMore || pagination.page >= pagination.totalPages) return;
+    fetchTransactions({ page: pagination.page + 1 });
+  }, [loadings.loadMore, pagination, fetchTransactions]);
 
   const createTransaction = async (transaction: CreateTransactionInterface) => {
     try {
@@ -213,10 +253,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
       });
       await refreshTransactions();
     } catch (error) {
-      console.error(
-        "Erro crítico ao criar transação no banco de dados:",
-        error,
-      );
+      console.error("Erro ao criar transação:", error);
       throw error;
     }
   };
@@ -229,7 +266,6 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
         const transactionToUpdate = await transactionCollection.find(
           String(data.id),
         );
-
         await transactionToUpdate.update((transaction) => {
           transaction.description = data.description;
           transaction.value = data.value;
@@ -239,10 +275,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
       });
       await refreshTransactions();
     } catch (error) {
-      console.error(
-        "Erro crítico ao atualizar transação no banco de dados:",
-        error,
-      );
+      console.error("Erro ao atualizar transação:", error);
       throw error;
     }
   };
@@ -257,49 +290,10 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
       });
       await refreshTransactions();
     } catch (error) {
-      console.error(
-        "Erro crítico ao deletar transação no banco de dados:",
-        error,
-      );
+      console.error("Erro ao deletar transação:", error);
       throw error;
     }
   };
-
-  const fetchTransactions = useCallback(
-    async ({ page = 1 }: FetchTransactionsParams) => {
-      const transactionResponse = await transactionService.getTransactions({
-        page,
-        perPage: pagination.perPage,
-        searchText,
-        ...filters,
-        categoryIds,
-      });
-
-      const getLocal = await getLocalTransactions();
-
-      const allTransactions = [...getLocal, ...transactionResponse.data];
-
-      if (page === 1) {
-        setTransactions(allTransactions);
-      } else {
-        setTransactions((prevState) => [...prevState, ...allTransactions]);
-      }
-
-      setTotalTransactions(transactionResponse.totalTransactions);
-      setPagination({
-        ...pagination,
-        page,
-        totalRows: transactionResponse.totalRows,
-        totalPages: transactionResponse.totalPages,
-      });
-    },
-    [pagination, searchText, filters, categoryIds],
-  );
-
-  const loadMoreTransactions = useCallback(() => {
-    if (loadings || pagination.page >= pagination.totalPages) return;
-    fetchTransactions({ page: pagination.page + 1 });
-  }, [loadings, pagination, fetchTransactions]);
 
   const handleFilters = ({ key, value }: HandleFiltersParams) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -318,40 +312,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
   const resetFilter = useCallback(async () => {
     setFilters(filtersInitialValues);
     setSearchText("");
-
-    const transactionResponse = await transactionService.getTransactions({
-      page: 1,
-      perPage: pagination.perPage,
-      searchText: "",
-      categoryIds: [],
-    });
-
-    setTransactions(transactionResponse.data);
-    setTotalTransactions(transactionResponse.totalTransactions);
-    setPagination({
-      ...pagination,
-      page: 1,
-      totalPages: transactionResponse.totalPages,
-      totalRows: transactionResponse.totalRows,
-    });
-  }, [pagination, searchText]);
-
-  const syncTransaction = async (transaction: Transaction) => {
-    await transactionService.createTransaction(transaction);
-
-    const localTransactions = await getLocalTransactions();
-
-    const filterTransactionsLocal = localTransactions.filter(
-      (t: Transaction) => t.id !== transaction.id,
-    );
-
-    await AsyncStorage.setItem(
-      "dt-money-transaction-local",
-      JSON.stringify(filterTransactionsLocal),
-    );
-
-    await refreshTransactions();
-  };
+  }, []);
 
   return (
     <TransactionContext.Provider
@@ -373,8 +334,6 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
         handleFilters,
         handleCategoryFilter,
         resetFilter,
-        syncTransaction,
-        getLocalTransactions,
       }}
     >
       {children}
