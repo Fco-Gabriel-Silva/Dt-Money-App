@@ -66,7 +66,7 @@ type TransactionContextType = {
   searchText: string;
   filters: Filters;
   handleFilters: (params: HandleFiltersParams) => void;
-  handleCategoryFilter: (categoryId: number) => void;
+  handleCategoryFilter: (categoryId: number | string) => void;
   resetFilter: () => Promise<void>;
 };
 
@@ -106,7 +106,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
   const categoryIds = useMemo(() => {
     return Object.entries(filters.categoryIds)
       .filter(([key, value]) => value)
-      .map(([key]) => Number(key));
+      .map(([key]) => String(key));
   }, [filters]);
 
   const handleLoadings = ({ key, value }: HandleLoadingParams) =>
@@ -135,6 +135,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
 
         if (categoryIds && categoryIds.length > 0) {
           const idsAsStrings = categoryIds.map(String);
+          console.log("idsAsStrings", idsAsStrings);
           baseConditions.push(Q.where("category_id", Q.oneOf(idsAsStrings)));
         }
 
@@ -299,12 +300,13 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleCategoryFilter = (categoryId: number) => {
+  const handleCategoryFilter = (categoryId: number | string) => {
+    const safeId = String(categoryId);
     setFilters((prevValue) => ({
       ...prevValue,
       categoryIds: {
         ...prevValue.categoryIds,
-        [categoryId]: !Boolean(prevValue.categoryIds[categoryId]),
+        [safeId]: !Boolean(prevValue.categoryIds[safeId]),
       },
     }));
   };
