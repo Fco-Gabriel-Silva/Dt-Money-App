@@ -34,29 +34,13 @@ export const EditTransactionForm: FC<Params> = ({
 
   const [transaction, setTransaction] = useState<
     UpdateTransactionInterface | Transaction
-  >(
-    transactionToUpdate.isLocal
-      ? {
-          id: transactionToUpdate.id,
-          typeId: transactionToUpdate.typeId,
-          categoryId: transactionToUpdate.categoryId,
-          description: transactionToUpdate.description,
-          value: transactionToUpdate.value,
-          isLocal: transactionToUpdate.isLocal,
-          createdAt: transactionToUpdate.createdAt,
-          updatedAt: transactionToUpdate.updatedAt,
-          deletedAt: transactionToUpdate.deletedAt,
-          type: transactionToUpdate.type,
-          category: transactionToUpdate.category,
-        }
-      : {
-          categoryId: transactionToUpdate.categoryId,
-          description: transactionToUpdate.description,
-          id: transactionToUpdate.id,
-          typeId: transactionToUpdate.typeId,
-          value: transactionToUpdate.value,
-        },
-  );
+  >({
+    categoryId: transactionToUpdate.categoryId,
+    description: transactionToUpdate.description,
+    id: transactionToUpdate.id,
+    typeId: transactionToUpdate.typeId,
+    value: transactionToUpdate.value,
+  });
 
   const [validationErrors, setValidationErrors] =
     useState<ValidationErrorsTypes>();

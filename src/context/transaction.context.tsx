@@ -221,47 +221,29 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
   };
 
   const updateTransaction = async (
-    transaction: UpdateTransactionInterface | Transaction,
+    data: UpdateTransactionInterface | Transaction,
   ) => {
-    if ("isLocal" in transaction && transaction.isLocal) {
-      const categoryFull = categories.find(
-        (c) => c.id === transaction.categoryId,
-      );
-
-      if (!categoryFull) {
-        console.error(
-          "Erro Crítico: Tentativa de criar transação com categoria inexistente na lista local.",
+    try {
+      await database.write(async () => {
+        const transactionToUpdate = await transactionCollection.find(
+          String(data.id),
         );
-        return;
-      }
 
-      const typeFull =
-        transaction.typeId === transactionTypesLocal.REVENUE.id
-          ? transactionTypesLocal.REVENUE
-          : transactionTypesLocal.EXPENSE;
-
-      const editTransactionFull: Transaction = {
-        ...transaction,
-        category: categoryFull,
-        type: typeFull,
-        updatedAt: new Date().toISOString(),
-      };
-
-      const localTransactions = await getLocalTransactions();
-
-      const filterTransactionsLocal = localTransactions.filter(
-        (t: Transaction) => t.id !== transaction.id,
+        await transactionToUpdate.update((transaction) => {
+          transaction.description = data.description;
+          transaction.value = data.value;
+          transaction.typeId = data.typeId;
+          transaction.categoryId = String(data.categoryId);
+        });
+      });
+      await refreshTransactions();
+    } catch (error) {
+      console.error(
+        "Erro crítico ao atualizar transação no banco de dados:",
+        error,
       );
-
-      await AsyncStorage.setItem(
-        "dt-money-transaction-local",
-        JSON.stringify([...filterTransactionsLocal, editTransactionFull]),
-      );
-    } else {
-      await transactionService.updateTransaction(transaction);
+      throw error;
     }
-
-    await refreshTransactions();
   };
 
   const fetchTransactions = useCallback(

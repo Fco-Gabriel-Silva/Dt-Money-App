@@ -4,7 +4,6 @@ export interface Transaction {
   categoryId: number | string;
   description: string;
   value: number;
-  isLocal?: boolean;
   createdAt: Date | string;
   updatedAt: Date | string;
   deletedAt: Date | null;
