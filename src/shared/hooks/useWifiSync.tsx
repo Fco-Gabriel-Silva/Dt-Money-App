@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import NetInfo from "@react-native-community/netinfo";
+import { syncWithBackend } from "@/databases/sync";
 
 export function useWifiSync() {
   useEffect(() => {
@@ -8,6 +9,8 @@ export function useWifiSync() {
         console.log(
           "🟢 Conectado ao Wi-Fi! Preparando para sincronizar o WatermelonDB...",
         );
+
+        syncWithBackend();
       } else if (state.isConnected && state.type === "cellular") {
         console.log(
           "🟡 Conectado no 4G/5G. Sincronização em segundo plano pausada.",

@@ -5,7 +5,7 @@ import { addTokenToRequest } from "../helpers/axios.helper";
 
 const baseURL = Platform.select({
   ios: "http://localhost:3001",
-  android: "http://localhost:3001",
+  android: "http://192.168.0.172:3001",
 });
 
 export const dtMoneyApi = axios.create({
