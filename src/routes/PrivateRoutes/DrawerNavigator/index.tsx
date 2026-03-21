@@ -6,6 +6,7 @@ import { Home } from "@/screens/Home";
 import { ListCategories } from "@/screens/ListCategories";
 import { Profile } from "@/screens/Profile";
 import { Sidebar } from "./Sidebar";
+import { useWifiSync } from "@/shared/hooks/useWifiSync";
 
 const Drawer = createDrawerNavigator();
 
@@ -16,6 +17,8 @@ export type PrivateDrawerParamsList = {
 };
 
 export const DrawerNavigator = () => {
+  useWifiSync();
+
   return (
     <SafeAreaView className="flex-1 bg-background-secondary">
       <Drawer.Navigator
