@@ -1,15 +1,17 @@
 import { useEffect } from "react";
 import NetInfo from "@react-native-community/netinfo";
 import { syncWithBackend } from "@/databases/sync";
+import { useAuthContext } from "@/context/auth.context";
 
 export function useWifiSync() {
+  const { token } = useAuthContext();
+
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
       if (state.isConnected && state.type === "wifi") {
         console.log(
           "🟢 Conectado ao Wi-Fi! Preparando para sincronizar o WatermelonDB...",
         );
-
         syncWithBackend();
       } else if (state.isConnected && state.type === "cellular") {
         console.log(
@@ -23,5 +25,5 @@ export function useWifiSync() {
     return () => {
       unsubscribe();
     };
-  }, []);
+  }, [token]);
 }

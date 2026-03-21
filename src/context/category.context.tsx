@@ -6,11 +6,12 @@ import {
   PropsWithChildren,
   useContext,
   useState,
+  useEffect,
 } from "react";
-import * as categoryService from "@/shared/services/dt-money/category.service";
 import { UpdateCategoryRequest } from "@/shared/interfaces/https/update-category-request";
 import { database } from "@/databases";
 import { TransactionCategoryModel } from "@/databases/model/transactionCategoryModel";
+import { syncWithBackend } from "@/databases/sync";
 
 type CategoryContextType = {
   refreshCategories: () => Promise<void>;
@@ -32,8 +33,28 @@ export const CategoryContextProvider: FC<PropsWithChildren> = ({
 
   const [categories, setCategories] = useState<TransactionCategory[]>([]);
 
+  useEffect(() => {
+    const subscription = categoryCollection
+      .query()
+      .observe()
+      .subscribe((localCategories) => {
+        const formattedCategories = localCategories.map((category) => ({
+          id: category.id,
+          name: category.name,
+          color: category.color,
+          userId: category.userId,
+        }));
+
+        setCategories(formattedCategories);
+      });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const refreshCategories = async () => {
     try {
+      await syncWithBackend();
+
       const localCategories = await categoryCollection.query().fetch();
 
       const formattedCategories = localCategories.map((category) => ({
@@ -51,27 +72,7 @@ export const CategoryContextProvider: FC<PropsWithChildren> = ({
 
   const fetchCategories = async () => {
     try {
-      let localCategories = await categoryCollection.query().fetch();
-
-      if (localCategories.length === 0) {
-        const response = await categoryService.getTransactionCategories();
-        const categoriesFromApi = response;
-
-        if (categoriesFromApi && categoriesFromApi.length > 0) {
-          await database.write(async () => {
-            await database.batch(
-              ...categoriesFromApi.map((apiCategory) =>
-                categoryCollection.prepareCreate((newCategory) => {
-                  newCategory.name = apiCategory.name;
-                  newCategory.color = apiCategory.color;
-                  newCategory.userId = apiCategory.userId;
-                }),
-              ),
-            );
-          });
-          localCategories = await categoryCollection.query().fetch();
-        }
-      }
+      const localCategories = await categoryCollection.query().fetch();
 
       const formattedCategories = localCategories.map((category) => ({
         id: category.id,
@@ -82,10 +83,7 @@ export const CategoryContextProvider: FC<PropsWithChildren> = ({
 
       setCategories(formattedCategories);
     } catch (error) {
-      console.error(
-        "Erro ao sincronizar categorias da API para o banco local: ",
-        error,
-      );
+      console.error("Erro ao buscar categorias do banco local: ", error);
     }
   };
 
@@ -98,6 +96,9 @@ export const CategoryContextProvider: FC<PropsWithChildren> = ({
           newCategory.userId = data.userId;
         });
       });
+
+      await syncWithBackend();
+
       await refreshCategories();
     } catch (error) {
       throw error;
@@ -115,6 +116,9 @@ export const CategoryContextProvider: FC<PropsWithChildren> = ({
           category.userId = data.userId;
         });
       });
+
+      await syncWithBackend();
+
       await refreshCategories();
     } catch (error) {
       throw error;
@@ -127,6 +131,9 @@ export const CategoryContextProvider: FC<PropsWithChildren> = ({
         const categoryToDelete = await categoryCollection.find(String(id));
         await categoryToDelete.markAsDeleted();
       });
+
+      await syncWithBackend();
+
       await refreshCategories();
     } catch (error) {
       throw error;

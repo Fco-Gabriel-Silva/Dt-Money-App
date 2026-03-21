@@ -16,10 +16,8 @@ import { ActivityIndicator, View } from "react-native";
 import { CategoryContextProvider } from "@/context/category.context";
 import { DatabaseProvider } from "@nozbe/watermelondb/DatabaseProvider";
 import { database } from "@/databases";
-import { useWifiSync } from "@/shared/hooks/useWifiSync";
 
 export default function App() {
-  useWifiSync();
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_500Medium,

@@ -20,6 +20,7 @@ import { useCategoryContext } from "./category.context";
 import { database } from "@/databases";
 import { TransactionModel } from "@/databases/model/transactionModel";
 import { Q } from "@nozbe/watermelondb";
+import { syncWithBackend } from "@/databases/sync";
 
 const filtersInitialValues = {
   categoryIds: {},
@@ -234,6 +235,8 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
   );
 
   const refreshTransactions = useCallback(async () => {
+    await syncWithBackend();
+
     await fetchTransactions({ page: 1 });
   }, [fetchTransactions]);
 
@@ -252,6 +255,9 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
           newTransaction.categoryId = String(transaction.categoryId);
         });
       });
+
+      await syncWithBackend();
+
       await refreshTransactions();
     } catch (error) {
       console.error("Erro ao criar transação:", error);
@@ -274,6 +280,9 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
           transaction.categoryId = String(data.categoryId);
         });
       });
+
+      await syncWithBackend();
+
       await refreshTransactions();
     } catch (error) {
       console.error("Erro ao atualizar transação:", error);
@@ -289,6 +298,9 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
         );
         await transactionToDelete.markAsDeleted();
       });
+
+      await syncWithBackend();
+
       await refreshTransactions();
     } catch (error) {
       console.error("Erro ao deletar transação:", error);
