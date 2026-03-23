@@ -1,5 +1,4 @@
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { fontFamily } from "@/styles/fontFamily";
 import { colors } from "@/styles/colors";
 import { Home } from "@/screens/Home";
@@ -7,6 +6,7 @@ import { ListCategories } from "@/screens/ListCategories";
 import { Profile } from "@/screens/Profile";
 import { Sidebar } from "./Sidebar";
 import { useWifiSync } from "@/shared/hooks/useWifiSync";
+import { View } from "react-native";
 
 const Drawer = createDrawerNavigator();
 
@@ -18,9 +18,8 @@ export type PrivateDrawerParamsList = {
 
 export const DrawerNavigator = () => {
   useWifiSync();
-
   return (
-    <SafeAreaView className="flex-1 bg-background-secondary">
+    <View className="flex-1 bg-background-secondary">
       <Drawer.Navigator
         drawerContent={Sidebar}
         screenOptions={{
@@ -53,6 +52,6 @@ export const DrawerNavigator = () => {
         />
         <Drawer.Screen name="Categorias" component={ListCategories} />
       </Drawer.Navigator>
-    </SafeAreaView>
+    </View>
   );
 };
