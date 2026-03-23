@@ -32,7 +32,7 @@ export const AppHeader = () => {
         }}
         className="bg-accent-brand w-[130px] items-center justify-center rounded-xl h-[50px]"
       >
-        <Text className="text-white font-heading text-sm">Nova transação</Text>
+        <Text className="text-white font-normal text-sm">Nova transação</Text>
       </TouchableOpacity>
     </View>
   );

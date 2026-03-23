@@ -8,10 +8,10 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { TransactionContextProvider } from "@/context/transaction.context";
 import {
   useFonts,
-  Poppins_400Regular,
-  Poppins_500Medium,
-  Poppins_700Bold,
-} from "@expo-google-fonts/poppins";
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_700Bold,
+} from "@expo-google-fonts/inter";
 import { ActivityIndicator, View } from "react-native";
 import { CategoryContextProvider } from "@/context/category.context";
 import { DatabaseProvider } from "@nozbe/watermelondb/DatabaseProvider";
@@ -19,9 +19,9 @@ import { database } from "@/databases";
 
 export default function App() {
   const [fontsLoaded] = useFonts({
-    Poppins_400Regular,
-    Poppins_500Medium,
-    Poppins_700Bold,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_700Bold,
   });
 
   if (!fontsLoaded) {

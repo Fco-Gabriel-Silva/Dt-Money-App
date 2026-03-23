@@ -31,7 +31,7 @@ export const TransactionCard: FC<Props> = ({ amount, type }) => {
   const renderDateInfo = () => {
     if (type === "total") {
       return (
-        <Text className="text-white text-base">
+        <Text className="text-white text-sm">
           {filters.from && filters.to
             ? `${format(filters.from, "d MMMM", { locale: ptBR })} até ${format(filters.to, "d MMMM", { locale: ptBR })}`
             : "Todo período"}
@@ -39,7 +39,7 @@ export const TransactionCard: FC<Props> = ({ amount, type }) => {
       );
     } else {
       return (
-        <Text className="text-gray-700">
+        <Text className="text-gray-700 text-sm">
           {lastTransaction?.createdAt
             ? format(
                 lastTransaction?.createdAt,
@@ -64,7 +64,7 @@ export const TransactionCard: FC<Props> = ({ amount, type }) => {
         <MaterialIcons name={iconData.name} size={26} color={iconData.color} />
       </View>
       <View>
-        <Text className="text-2xl text-gray-400 font-heading">
+        <Text className="text-xl text-gray-400 font-heading">
           R$ {moneyMapper(amount)}
         </Text>
         {renderDateInfo()}

@@ -1,5 +1,5 @@
 export const fontFamily = {
-  sans: "Poppins_400Regular",
-  normal: "Poppins_500Medium",
-  heading: "Poppins_700Bold",
+  sans: "Inter_400Regular",
+  normal: "Inter_500Medium",
+  heading: "Inter_700Bold",
 };

@@ -40,7 +40,7 @@ export const DeleteModal: FC<Params> = ({
                     <MaterialIcons
                       size={25}
                       name="error-outline"
-                      className="mr-4"
+                      className="mr-2"
                       color={colors.gray["400"]}
                     />
                     <Text className="text-white text-xl">
@@ -68,16 +68,16 @@ export const DeleteModal: FC<Params> = ({
                     onPress={hideModal}
                     className="w-[100] bg-none border-2 border-accent-brand items-center justify-center p-3 rounded-[6]"
                   >
-                    <Text className="text-accent-brand">Cancelar</Text>
+                    <Text className="text-accent-brand text-sm">Cancelar</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={handleDeleteTransaction}
-                    className="w-[100] bg-accent-red-background-primary items-center justify-center p-3 rounded-[6]"
+                    className="w-[100] bg-accent-red-background-primary items-center border-2 border-accent-red-background-primary justify-center p-3 rounded-[6]"
                   >
                     {loading ? (
                       <ActivityIndicator />
                     ) : (
-                      <Text className="text-white">Apagar</Text>
+                      <Text className="text-white text-sm">Apagar</Text>
                     )}
                   </TouchableOpacity>
                 </View>
