@@ -136,7 +136,6 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
 
         if (categoryIds && categoryIds.length > 0) {
           const idsAsStrings = categoryIds.map(String);
-          console.log("idsAsStrings", idsAsStrings);
           baseConditions.push(Q.where("category_id", Q.oneOf(idsAsStrings)));
         }
 
@@ -240,9 +239,9 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
     await fetchTransactions({ page: 1 });
   }, [fetchTransactions]);
 
-  const loadMoreTransactions = useCallback(() => {
+  const loadMoreTransactions = useCallback(async () => {
     if (loadings.loadMore || pagination.page >= pagination.totalPages) return;
-    fetchTransactions({ page: pagination.page + 1 });
+    await fetchTransactions({ page: pagination.page + 1 });
   }, [loadings.loadMore, pagination, fetchTransactions]);
 
   const createTransaction = async (transaction: CreateTransactionInterface) => {
