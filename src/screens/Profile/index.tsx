@@ -17,7 +17,7 @@ export const Profile = () => {
   return (
     <SafeAreaView className="flex-1 bg-background-primary">
       <View className="flex-1 bg-background-primary">
-        <HeaderProfile avatarUrl={user?.avatarUrl} />
+        <HeaderProfile />
 
         <View className="flex-1 px-10 pt-20 gap-8">
           <View>

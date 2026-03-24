@@ -4,7 +4,7 @@ import {
   DrawerItemList,
   DrawerItem,
 } from "@react-navigation/drawer";
-import { Image, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import { useAuthContext } from "@/context/auth.context";
 import { Text } from "@/components/Text";
@@ -19,18 +19,11 @@ export const Sidebar = (props: DrawerContentComponentProps) => {
       <DrawerContentScrollView {...props}>
         <View className="mb-6 border-solid border-b border-gray-800">
           <View className="mt-4 mb-6 mx-5 flex-row items-center gap-3">
-            {user?.avatarUrl ? (
-              <Image
-                source={{ uri: user.avatarUrl }}
-                style={{ width: 60, height: 60, borderRadius: 30 }}
-              />
-            ) : (
-              <FontAwesome5
-                name="user-circle"
-                size={60}
-                color={colors["accent-brand"]}
-              />
-            )}
+            <FontAwesome5
+              name="user-circle"
+              size={60}
+              color={colors["accent-brand"]}
+            />
 
             <View>
               <Text className="text-lg text-accent-brand">{user?.name}</Text>
