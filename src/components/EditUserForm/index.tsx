@@ -86,7 +86,7 @@ export const EditUserForm = () => {
                 <>
                   <View className="border border-gray-700 rounded-xl px-4 py-2">
                     <Input
-                      className="text-white text-base font-sans mt-2 p-0"
+                      className="text-white text-base font-sans py-2 p-0"
                       onChangeText={onChange}
                       value={value}
                     />
@@ -109,7 +109,7 @@ export const EditUserForm = () => {
                 <>
                   <View className="border border-gray-700 rounded-xl px-4 py-2">
                     <Input
-                      className="text-white text-base font-sans mt-2 p-0"
+                      className="text-white text-base font-sans py-2 p-0"
                       onChangeText={onChange}
                       value={value}
                       autoCapitalize="none"
@@ -134,7 +134,7 @@ export const EditUserForm = () => {
                 <>
                   <View className="border border-gray-700 rounded-xl px-4 py-2">
                     <Input
-                      className="text-white text-base font-sans mt-2 p-0"
+                      className="text-white text-base font-sans py-2 p-0"
                       onChangeText={onChange}
                       value={value}
                       placeholder="********"
@@ -160,7 +160,7 @@ export const EditUserForm = () => {
                 <>
                   <View className="border border-gray-700 rounded-xl px-4 py-2">
                     <Input
-                      className="text-white text-base font-sans mt-2 p-0"
+                      className="text-white text-base font-sans py-2 p-0"
                       onChangeText={onChange}
                       value={value}
                       placeholder="-"
@@ -176,7 +176,7 @@ export const EditUserForm = () => {
 
           <AppButton
             onPress={handleSubmit(onSubmit)}
-            className="mt-4 mb-10"
+            className="mt-2"
             disabled={isSubmitting}
           >
             {isSubmitting ? (
