@@ -7,5 +7,8 @@ export const userSchema = yup.object().shape({
     .string()
     .transform((value) => (value === "" ? undefined : value))
     .min(6, "A senha deve ter no mínimo 6 caracteres"),
-  phone: yup.string().min(11, "Telefone inválido"),
+  phone: yup
+    .string()
+    .transform((value) => (value === "" ? undefined : value))
+    .min(11, "Telefone inválido"),
 });

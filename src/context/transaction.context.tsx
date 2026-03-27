@@ -21,6 +21,8 @@ import { database } from "@/databases";
 import { TransactionModel } from "@/databases/model/transactionModel";
 import { Q } from "@nozbe/watermelondb";
 import { syncWithBackend } from "@/databases/sync";
+import { useAuthContext } from "./auth.context";
+import { useNavigation } from "@react-navigation/native";
 
 const filtersInitialValues = {
   categoryIds: {},
@@ -78,6 +80,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
 }) => {
   const transactionCollection = database.get<TransactionModel>("transactions");
   const { categories } = useCategoryContext();
+  const { user, handleLogout } = useAuthContext();
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [searchText, setSearchText] = useState("");
@@ -120,6 +123,13 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
         const itemsToSkip = (page - 1) * perPage;
 
         const baseConditions: Q.Clause[] = [];
+
+        if (!user) {
+          handleLogout();
+          return;
+        } else {
+          baseConditions.push(Q.where("user_id", user.id));
+        }
 
         if (searchText) {
           baseConditions.push(
@@ -230,7 +240,14 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
         );
       }
     },
-    [pagination.perPage, searchText, filters, categoryIds, categories],
+    [
+      pagination.perPage,
+      searchText,
+      filters,
+      categoryIds,
+      categories,
+      user?.id,
+    ],
   );
 
   const refreshTransactions = useCallback(async () => {
@@ -246,12 +263,18 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
 
   const createTransaction = async (transaction: CreateTransactionInterface) => {
     try {
+      if (!user) {
+        handleLogout();
+        return;
+      }
+
       await database.write(async () => {
         await transactionCollection.create((newTransaction) => {
           newTransaction.description = transaction.description;
           newTransaction.value = transaction.value;
           newTransaction.typeId = transaction.typeId;
           newTransaction.categoryId = String(transaction.categoryId);
+          newTransaction.userId = user.id;
         });
       });
 

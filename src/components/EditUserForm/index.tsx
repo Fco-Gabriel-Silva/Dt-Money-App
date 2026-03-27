@@ -14,6 +14,10 @@ import { Controller, useForm } from "react-hook-form";
 import { userSchema } from "./schema";
 import { UpdateUserRequest } from "@/shared/interfaces/https/update-user-request";
 import { ErrorMessage } from "../ErrorMessage";
+import * as ImagePicker from "expo-image-picker";
+import { uploadAvatar } from "@/shared/services/dt-money/user.service";
+import { useState } from "react";
+import { dtMoneyApi } from "@/shared/api/dt-money";
 
 export interface FormEditParams {
   name?: string;
@@ -27,6 +31,8 @@ export const EditUserForm = () => {
   const { notify } = useSnackbarContext();
   const { handleError } = useErrorHandler();
   const navigation = useNavigation();
+
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const {
     control,
@@ -42,9 +48,41 @@ export const EditUserForm = () => {
     },
   });
 
+  const handlePickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (status !== "granted") {
+      notify({
+        message: "Precisamos de permissão para acessar a galeria",
+        messageType: "ERROR",
+      });
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+    });
+
+    if (!result.canceled) {
+      setSelectedImage(result.assets[0].uri);
+    }
+  };
+
   const onSubmit = async (data: FormEditParams) => {
     try {
       if (!user) return;
+
+      let finalAvatarUrl = user.avatarUrl || "";
+
+      if (selectedImage) {
+        const response = await uploadAvatar(selectedImage);
+
+        finalAvatarUrl = `${dtMoneyApi.defaults.baseURL}/uploads/${response.fileName}`;
+        console.log("URL FINAL GERADA:", finalAvatarUrl);
+      }
 
       const payload: UpdateUserRequest = {
         id: user.id,
@@ -52,7 +90,7 @@ export const EditUserForm = () => {
         email: data.email || user.email,
         password: data.password || user.password,
         phone: data.phone || "",
-        avatarUrl: user.avatarUrl || "",
+        avatarUrl: finalAvatarUrl,
       };
 
       await updateUser(payload);
@@ -71,7 +109,12 @@ export const EditUserForm = () => {
   return (
     <DismissKeyboardView>
       <View className="flex-1 bg-background-primary">
-        <HeaderProfile title="Editar Perfil" isEdit />
+        <HeaderProfile
+          title="Editar Perfil"
+          isEdit
+          avatarUrl={selectedImage || user?.avatarUrl}
+          onEditAvatarPress={handlePickImage}
+        />
 
         <View className="flex-1 px-10 pt-20 gap-8">
           <View>

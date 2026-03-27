@@ -2,18 +2,23 @@ import { Text } from "@/components/Text";
 import { colors } from "@/styles/colors";
 import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { TouchableOpacity, View } from "react-native";
+import { Image, TouchableOpacity, View } from "react-native";
+import { opacity } from "react-native-reanimated/lib/typescript/Colors";
 
 interface HeaderProfileProps {
   isEdit?: boolean;
   title?: string;
   onBackPress?: () => void;
+  avatarUrl?: string | null;
+  onEditAvatarPress?: () => void;
 }
 
 export const HeaderProfile = ({
   isEdit = false,
   title = "Meu Perfil",
   onBackPress,
+  avatarUrl,
+  onEditAvatarPress,
 }: HeaderProfileProps) => {
   const navigation = useNavigation();
 
@@ -41,14 +46,30 @@ export const HeaderProfile = ({
       </View>
 
       <View className="absolute w-full items-center top-[75px] z-50">
-        <View className="bg-background-primary rounded-full">
-          <FontAwesome5 name="user-circle" size={120} color="white" />
+        <View className="relative w-[120px] h-[120px]">
+          <View className="w-full h-full bg-background-primary rounded-full items-center justify-center overflow-hidden border-4 border-background-primary">
+            {avatarUrl ? (
+              <Image source={{ uri: avatarUrl }} className="w-full h-full" />
+            ) : (
+              <Image
+                source={require("@/assets/profile.png")}
+                className="w-full h-full"
+              />
+            )}
+          </View>
+
           {isEdit && (
             <TouchableOpacity
               activeOpacity={0.9}
-              className="absolute bg-accent-brand-background-primary items-center p-2 pl-3 rounded-full right-0 bottom-0"
+              onPress={onEditAvatarPress}
+              className="absolute bg-accent-brand-background-primary items-center justify-center w-[44px] h-[44px] rounded-full right-0 bottom-0"
             >
-              <FontAwesome5 name="edit" size={24} color="white" />
+              <FontAwesome5
+                name="edit"
+                size={22}
+                color="white"
+                style={{ marginLeft: 3 }}
+              />
             </TouchableOpacity>
           )}
         </View>
