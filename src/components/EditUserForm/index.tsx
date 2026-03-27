@@ -17,6 +17,7 @@ import { ErrorMessage } from "../ErrorMessage";
 import * as ImagePicker from "expo-image-picker";
 import { uploadAvatar } from "@/shared/services/dt-money/user.service";
 import { useState } from "react";
+import { dtMoneyApi } from "@/shared/api/dt-money";
 
 export interface FormEditParams {
   name?: string;
@@ -79,7 +80,7 @@ export const EditUserForm = () => {
       if (selectedImage) {
         const response = await uploadAvatar(selectedImage);
 
-        finalAvatarUrl = `http://192.168.0.172:3001/uploads/${response.fileName}`;
+        finalAvatarUrl = `${dtMoneyApi.defaults.baseURL}/uploads/${response.fileName}`;
         console.log("URL FINAL GERADA:", finalAvatarUrl);
       }
 
