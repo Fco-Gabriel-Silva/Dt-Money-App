@@ -12,6 +12,8 @@ import { UpdateCategoryRequest } from "@/shared/interfaces/https/update-category
 import { database } from "@/databases";
 import { TransactionCategoryModel } from "@/databases/model/transactionCategoryModel";
 import { syncWithBackend } from "@/databases/sync";
+import { useAuthContext } from "./auth.context";
+import { Q } from "@nozbe/watermelondb";
 
 type CategoryContextType = {
   refreshCategories: () => Promise<void>;
@@ -30,12 +32,18 @@ export const CategoryContextProvider: FC<PropsWithChildren> = ({
   const categoryCollection = database.get<TransactionCategoryModel>(
     "transaction_categories",
   );
+  const { user, handleLogout } = useAuthContext();
 
   const [categories, setCategories] = useState<TransactionCategory[]>([]);
 
   useEffect(() => {
+    if (!user) {
+      handleLogout();
+      return;
+    }
+
     const subscription = categoryCollection
-      .query()
+      .query(Q.where("user_id", user.id))
       .observe()
       .subscribe((localCategories) => {
         const formattedCategories = localCategories.map((category) => ({
@@ -49,13 +57,20 @@ export const CategoryContextProvider: FC<PropsWithChildren> = ({
       });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [user?.id]);
 
   const refreshCategories = async () => {
     try {
+      if (!user) {
+        handleLogout();
+        return;
+      }
+
       await syncWithBackend();
 
-      const localCategories = await categoryCollection.query().fetch();
+      const localCategories = await categoryCollection
+        .query(Q.where("user_id", user.id))
+        .fetch();
 
       const formattedCategories = localCategories.map((category) => ({
         id: category.id,
@@ -72,7 +87,14 @@ export const CategoryContextProvider: FC<PropsWithChildren> = ({
 
   const fetchCategories = async () => {
     try {
-      const localCategories = await categoryCollection.query().fetch();
+      if (!user) {
+        handleLogout();
+        return;
+      }
+
+      const localCategories = await categoryCollection
+        .query(Q.where("user_id", user.id))
+        .fetch();
 
       const formattedCategories = localCategories.map((category) => ({
         id: category.id,
