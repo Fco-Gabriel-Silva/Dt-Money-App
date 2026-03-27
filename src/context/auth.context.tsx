@@ -13,6 +13,9 @@ import { IUser } from "@/shared/interfaces/user-interface";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { IAuthenticateResponse } from "@/shared/interfaces/https/authenticate-response";
 import { UpdateUserRequest } from "@/shared/interfaces/https/update-user-request";
+import { Alert } from "react-native";
+import { database } from "@/databases";
+import { hasUnsyncedChanges } from "@nozbe/watermelondb/sync";
 
 type AuthContextType = {
   user: IUser | null;
@@ -54,9 +57,30 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
   };
 
   const handleLogout = async () => {
-    await AsyncStorage.clear();
-    setToken(null);
-    setUser(null);
+    try {
+      // 1. Verifica se existem dados presos no celular
+      const hasPendingChanges = await hasUnsyncedChanges({ database });
+
+      // 2. Trava de segurança!
+      if (hasPendingChanges) {
+        Alert.alert(
+          "Atenção: Sincronização Pendente",
+          "Você possui transações ou categorias criadas offline que ainda não foram salvas no servidor. Conecte-se à internet e aguarde a sincronização antes de sair para não perder seus dados.",
+          [{ text: "Entendi" }],
+        );
+        return;
+      }
+
+      await database.write(async () => {
+        await database.unsafeResetDatabase();
+      });
+
+      await AsyncStorage.clear();
+      setToken(null);
+      setUser(null);
+    } catch (error) {
+      console.error("Erro ao realizar logout:", error);
+    }
   };
 
   const restoreUserSession = async () => {
