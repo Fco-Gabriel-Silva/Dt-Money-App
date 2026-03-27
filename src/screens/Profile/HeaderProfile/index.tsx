@@ -3,6 +3,7 @@ import { colors } from "@/styles/colors";
 import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { Image, TouchableOpacity, View } from "react-native";
+import { opacity } from "react-native-reanimated/lib/typescript/Colors";
 
 interface HeaderProfileProps {
   isEdit?: boolean;
@@ -50,7 +51,10 @@ export const HeaderProfile = ({
             {avatarUrl ? (
               <Image source={{ uri: avatarUrl }} className="w-full h-full" />
             ) : (
-              <FontAwesome5 name="user-circle" size={120} color="white" />
+              <Image
+                source={require("@/assets/profile.png")}
+                className="w-full h-full"
+              />
             )}
           </View>
 
@@ -58,9 +62,14 @@ export const HeaderProfile = ({
             <TouchableOpacity
               activeOpacity={0.9}
               onPress={onEditAvatarPress}
-              className="absolute bg-accent-brand-background-primary items-center p-2 pl-3 rounded-full right-0 bottom-0"
+              className="absolute bg-accent-brand-background-primary items-center justify-center w-[44px] h-[44px] rounded-full right-0 bottom-0"
             >
-              <FontAwesome5 name="edit" size={24} color="white" />
+              <FontAwesome5
+                name="edit"
+                size={22}
+                color="white"
+                style={{ marginLeft: 3 }}
+              />
             </TouchableOpacity>
           )}
         </View>
