@@ -8,9 +8,10 @@ import { TransactionsFilters } from "./TransactionsFilters";
 import { Text } from "@/components/Text";
 import { fontFamily } from "@/styles/fontFamily";
 import { Input } from "@/components/Input";
+import { Skeleton } from "moti/skeleton";
 
 export const FilterInput = () => {
-  const { searchText, setSearchText, fetchTransactions, pagination } =
+  const { searchText, setSearchText, fetchTransactions, pagination, loadings } =
     useTransactionContext();
 
   const { openBottomSheet } = useBottomSheetContext();
@@ -37,9 +38,19 @@ export const FilterInput = () => {
     <View className="mb-4 w-[90%] self-center">
       <View className="w-full flex-row justify-between items-center mt-4 mb-3">
         <Text className="text-white text-xl font-heading">Transações</Text>
-        <Text className="text-gray-700 text-base">
-          {pagination.totalRows} {pagination.totalRows === 1 ? "Item" : "itens"}
-        </Text>
+        {loadings.initial ? (
+          <Skeleton
+            colorMode="dark"
+            width={60}
+            height={16}
+            colors={[colors.gray[800], colors.gray[700]]}
+          />
+        ) : (
+          <Text className="text-gray-700 text-base">
+            {pagination.totalRows}{" "}
+            {pagination.totalRows === 1 ? "Item" : "itens"}
+          </Text>
+        )}
       </View>
       <TouchableOpacity
         activeOpacity={1}

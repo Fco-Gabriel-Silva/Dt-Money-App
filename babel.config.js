@@ -12,6 +12,7 @@ module.exports = function (api) {
           root: ["."],
           alias: {
             "@": "./src",
+            "moti/skeleton": "moti/skeleton/react-native-linear-gradient",
           },
         },
       ],

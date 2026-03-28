@@ -88,7 +88,7 @@ export const CategoryContextProvider: FC<PropsWithChildren> = ({
   const fetchCategories = async () => {
     try {
       if (!user) {
-        handleLogout();
+        setCategories([]);
         return;
       }
 
