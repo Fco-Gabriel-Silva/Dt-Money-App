@@ -17,6 +17,7 @@ import { TransactionCard } from "./TransactionCard";
 import { EmptyList } from "./EmptyList";
 import { colors } from "@/styles/colors";
 import { useCategoryContext } from "@/context/category.context";
+import { TransactionCardSkeleton } from "./TransactionCardSkeleton";
 
 export const Home = () => {
   const { handleLogout } = useAuthContext();
@@ -33,23 +34,17 @@ export const Home = () => {
 
   const handleFetchCategories = async () => {
     try {
-      handleLoadings({ key: "initial", value: true });
-      fetchCategories();
+      await fetchCategories();
     } catch (error) {
       handleError(error, "Falha ao buscar categorias de transação");
-    } finally {
-      handleLoadings({ key: "initial", value: false });
     }
   };
 
   const fetchInitialTransactions = async () => {
     try {
-      handleLoadings({ key: "initial", value: true });
-      fetchTransactions({ page: 1 });
+      await refreshTransactions();
     } catch (error) {
       handleError(error, "Falha ao buscar transações");
-    } finally {
-      handleLoadings({ key: "initial", value: false });
     }
   };
 
@@ -77,7 +72,11 @@ export const Home = () => {
 
   useEffect(() => {
     (async () => {
+      handleLoadings({ key: "initial", value: true });
+
       await Promise.all([handleFetchCategories(), fetchInitialTransactions()]);
+
+      handleLoadings({ key: "initial", value: false });
     })();
   }, []);
 
@@ -89,7 +88,18 @@ export const Home = () => {
       renderItem={({ item }) => <TransactionCard transaction={item} />}
       ListHeaderComponent={ListHeader}
       onEndReached={handleLoadMoreTransactions}
-      ListEmptyComponent={loadings.initial ? null : EmptyList}
+      ListEmptyComponent={
+        loadings.initial ? (
+          <View className="mt-2">
+            <TransactionCardSkeleton />
+            <TransactionCardSkeleton />
+            <TransactionCardSkeleton />
+            <TransactionCardSkeleton />
+          </View>
+        ) : (
+          <EmptyList />
+        )
+      }
       onEndReachedThreshold={0.5}
       ListFooterComponent={
         loadings.loadMore ? (

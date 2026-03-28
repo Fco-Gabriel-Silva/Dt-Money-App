@@ -4,6 +4,7 @@ import {
   PropsWithChildren,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -87,7 +88,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
   const [filters, setFilters] = useState<Filters>(filtersInitialValues);
 
   const [loadings, setLoadings] = useState<Loadings>({
-    initial: false,
+    initial: true,
     refresh: false,
     loadMore: false,
   });
@@ -106,6 +107,17 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
     totalRows: 0,
     totalPages: 0,
   });
+
+  useEffect(() => {
+    if (!user) {
+      setTransactions([]);
+      setTotalTransactions({ expense: 0, revenue: 0, total: 0 });
+      setPagination({ page: 1, perPage: 15, totalRows: 0, totalPages: 0 });
+      setSearchText("");
+      setFilters(filtersInitialValues);
+      setLoadings({ initial: true, refresh: false, loadMore: false });
+    }
+  }, [user]);
 
   const categoryIds = useMemo(() => {
     return Object.entries(filters.categoryIds)
@@ -170,35 +182,35 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
           )
           .fetch();
 
-        const formattedTransactions = localTransactions.map((t) => {
-          let type =
-            transactionTypesLocal.EXPENSE.id === t.typeId
-              ? transactionTypesLocal.EXPENSE
-              : transactionTypesLocal.REVENUE;
+        const formattedTransactions = await Promise.all(
+          localTransactions.map(async (t) => {
+            let type =
+              transactionTypesLocal.EXPENSE.id === t.typeId
+                ? transactionTypesLocal.EXPENSE
+                : transactionTypesLocal.REVENUE;
 
-          let category = categories.find(
-            (c) => String(c.id) === String(t.categoryId),
-          );
+            const category = await t.category.fetch();
 
-          return {
-            id: t.id as any,
-            description: t.description,
-            value: t.value,
-            typeId: t.typeId,
-            categoryId: t.categoryId,
-            createdAt: t.createdAt,
-            updatedAt: t.updatedAt,
-            deletedAt: t.deletedAt ?? null,
-            type: {
-              id: type.id,
-              name: type.name,
-            },
-            category: {
-              id: category?.id || t.categoryId,
-              name: category?.name || "Desconhecida",
-            },
-          };
-        });
+            return {
+              id: t.id as any,
+              description: t.description,
+              value: t.value,
+              typeId: t.typeId,
+              categoryId: t.categoryId,
+              createdAt: t.createdAt,
+              updatedAt: t.updatedAt,
+              deletedAt: t.deletedAt ?? null,
+              type: {
+                id: type.id,
+                name: type.name,
+              },
+              category: {
+                id: category?.id || t.categoryId,
+                name: category?.name || "Desconhecida",
+              },
+            };
+          }),
+        );
 
         if (page === 1) {
           setTransactions(formattedTransactions);

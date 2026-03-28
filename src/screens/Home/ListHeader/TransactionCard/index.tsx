@@ -10,6 +10,8 @@ import { CARD_DATA } from "./strategies/card-data-strategy";
 import { moneyMapper } from "@/shared/utils/money-mapper";
 import clsx from "clsx";
 import { Text } from "@/components/Text";
+import { Skeleton } from "moti/skeleton";
+import { colors } from "@/styles/colors";
 
 export type TransactionCardType = TransactionTypes | "total";
 
@@ -22,7 +24,7 @@ export const TransactionCard: FC<Props> = ({ amount, type }) => {
   const iconData = ICONS[type];
   const cardData = CARD_DATA[type];
 
-  const { transactions, filters } = useTransactionContext();
+  const { transactions, filters, loadings } = useTransactionContext();
 
   const lastTransaction = transactions.find(
     ({ type: transactionType }) => transactionType.id === type,
@@ -52,6 +54,11 @@ export const TransactionCard: FC<Props> = ({ amount, type }) => {
     }
   };
 
+  const skeletonColors =
+    type === "total"
+      ? [colors["accent-brand"], colors["accent-brand-light"]]
+      : [colors.gray[800], colors.gray[700]];
+
   return (
     <View
       className={clsx(
@@ -63,11 +70,20 @@ export const TransactionCard: FC<Props> = ({ amount, type }) => {
         <Text className="text-white text-base">{cardData.label}</Text>
         <MaterialIcons name={iconData.name} size={26} color={iconData.color} />
       </View>
-      <View>
-        <Text className="text-xl text-gray-400 font-heading">
-          R$ {moneyMapper(amount)}
-        </Text>
-        {renderDateInfo()}
+      <View className="mt-4 justify-between">
+        {loadings.initial ? (
+          <View className="gap-2">
+            <Skeleton width={160} height={24} colors={skeletonColors} />
+            <Skeleton width={200} height={16} colors={skeletonColors} />
+          </View>
+        ) : (
+          <>
+            <Text className="text-xl text-gray-400 font-heading">
+              R$ {moneyMapper(amount)}
+            </Text>
+            {renderDateInfo()}
+          </>
+        )}
       </View>
     </View>
   );
