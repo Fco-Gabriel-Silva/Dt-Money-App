@@ -9,10 +9,12 @@ import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import { useAuthContext } from "@/context/auth.context";
 import { Text } from "@/components/Text";
 import { colors } from "@/styles/colors";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const Sidebar = (props: DrawerContentComponentProps) => {
   const { user } = useAuthContext();
   const { handleLogout } = useAuthContext();
+  const insets = useSafeAreaInsets();
 
   return (
     <View className="flex-1" style={{ marginInline: 20 }}>
@@ -42,7 +44,10 @@ export const Sidebar = (props: DrawerContentComponentProps) => {
         <DrawerItemList {...props} />
       </DrawerContentScrollView>
 
-      <View className="p-4 mb-4 border-t border-gray-800 border-solid">
+      <View
+        className="p-4 border-t border-gray-800 border-solid"
+        style={{ paddingBottom: insets.bottom + 16 }}
+      >
         <TouchableOpacity
           onPress={handleLogout}
           className="flex-row items-center gap-2"
