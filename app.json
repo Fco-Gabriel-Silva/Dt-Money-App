@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/logo-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#121214"
     },
     "ios": {
       "supportsTablet": true
@@ -18,7 +18,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/logo-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#121214"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
@@ -43,6 +43,7 @@
       [
         "expo-splash-screen",
         {
+          "backgroundColor": "#121214",
           "image": "./assets/logo-icon.png",
           "imageWidth": 200
         }
