@@ -1,3 +1,4 @@
+import "./src/styles/global.css";
 import NavigationRoutes from "@/routes";
 import { AuthContextProvider } from "@/context/auth.context";
 import { SnackbarContextProvider } from "@/context/snackbar.context";
@@ -31,10 +32,7 @@ export default function App() {
 
   useEffect(() => {
     async function setupNotifications() {
-      const hasPermission = await requestUserPermission();
-      if (hasPermission) {
-        await getFCMToken();
-      }
+      await requestUserPermission();
     }
 
     setupNotifications();
