@@ -36,7 +36,9 @@
           "android": {
             "usesCleartextTraffic": true,
             "packagingOptions": {
-              "pickFirst": ["**/libc++_shared.so"]
+              "pickFirst": [
+                "**/libc++_shared.so"
+              ]
             }
           }
         }
@@ -51,7 +53,8 @@
       ],
       "@lovesworking/watermelondb-expo-plugin-sdk-52-plus",
       "@react-native-firebase/app",
-      "@react-native-firebase/messaging"
+      "@react-native-firebase/messaging",
+      "expo-secure-store"
     ],
     "extra": {
       "eas": {

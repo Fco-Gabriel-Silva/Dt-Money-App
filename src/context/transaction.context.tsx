@@ -81,7 +81,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
 }) => {
   const transactionCollection = database.get<TransactionModel>("transactions");
   const { categories } = useCategoryContext();
-  const { user, handleLogout } = useAuthContext();
+  const { user } = useAuthContext();
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [searchText, setSearchText] = useState("");
@@ -137,7 +137,6 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
         const baseConditions: Q.Clause[] = [];
 
         if (!user) {
-          handleLogout();
           return;
         } else {
           baseConditions.push(Q.where("user_id", user.id));
@@ -276,7 +275,6 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
   const createTransaction = async (transaction: CreateTransactionInterface) => {
     try {
       if (!user) {
-        handleLogout();
         return;
       }
 

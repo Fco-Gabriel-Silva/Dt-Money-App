@@ -32,13 +32,12 @@ export const CategoryContextProvider: FC<PropsWithChildren> = ({
   const categoryCollection = database.get<TransactionCategoryModel>(
     "transaction_categories",
   );
-  const { user, handleLogout } = useAuthContext();
+  const { user } = useAuthContext();
 
   const [categories, setCategories] = useState<TransactionCategory[]>([]);
 
   useEffect(() => {
     if (!user) {
-      handleLogout();
       return;
     }
 
@@ -62,7 +61,6 @@ export const CategoryContextProvider: FC<PropsWithChildren> = ({
   const refreshCategories = async () => {
     try {
       if (!user) {
-        handleLogout();
         return;
       }
 
