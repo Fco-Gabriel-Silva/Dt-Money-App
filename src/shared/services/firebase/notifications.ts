@@ -42,3 +42,12 @@ export async function getDeviceInfoPayload() {
     return {};
   }
 }
+
+export async function deleteFCMToken() {
+  try {
+    await messaging().deleteToken();
+    console.log("FCM Token deletado com sucesso do aparelho.");
+  } catch (error) {
+    console.error("Erro ao deletar FCM Token do Firebase", error);
+  }
+}

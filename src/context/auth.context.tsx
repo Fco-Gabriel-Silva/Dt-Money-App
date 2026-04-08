@@ -17,6 +17,7 @@ import { database } from "@/databases";
 import { hasUnsyncedChanges } from "@nozbe/watermelondb/sync";
 import * as SecureStore from "expo-secure-store";
 import { dtMoneyApi } from "@/shared/api/dt-money";
+import { deleteFCMToken } from "@/shared/services/firebase/notifications";
 
 type AuthContextType = {
   user: IUser | null;
@@ -99,12 +100,14 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
         }
       }
 
+      await deleteFCMToken();
+
       await database.write(async () => {
         await database.unsafeResetDatabase();
       });
 
-      // Deleta a chave específica do cofre
       await SecureStore.deleteItemAsync("dt-money-user");
+      delete dtMoneyApi.defaults.headers.common["Authorization"];
 
       setToken(null);
       setUser(null);
