@@ -153,6 +153,9 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
 
       // Limpa os dados de acesso do cofre
       await SecureStore.deleteItemAsync("dt-money-user");
+
+      delete dtMoneyApi.defaults.headers.common["Authorization"];
+
       setToken(null);
       setUser(null);
     } catch (error) {
