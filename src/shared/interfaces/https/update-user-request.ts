@@ -5,4 +5,7 @@ export interface UpdateUserRequest {
   password: string;
   phone: string;
   avatarUrl: string;
+  os?: string | null;
+  model?: string | null;
+  deviceToken?: string | null;
 }

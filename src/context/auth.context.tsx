@@ -78,6 +78,27 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
         return;
       }
 
+      if (user) {
+        try {
+          await userService.updateUser({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            password: user.password,
+            phone: user.phone || "",
+            avatarUrl: user.avatarUrl || "",
+            os: null,
+            model: null,
+            deviceToken: null,
+          });
+        } catch (error: any) {
+          console.error(
+            "🛑 ERRO DO BACKEND AO LIMPAR TOKEN:",
+            error.response?.data || error.message,
+          );
+        }
+      }
+
       await database.write(async () => {
         await database.unsafeResetDatabase();
       });
