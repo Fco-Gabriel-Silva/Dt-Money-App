@@ -24,6 +24,7 @@ import { Q } from "@nozbe/watermelondb";
 import { syncWithBackend } from "@/databases/sync";
 import { useAuthContext } from "./auth.context";
 import { useNavigation } from "@react-navigation/native";
+import * as Notifications from "expo-notifications";
 
 const filtersInitialValues = {
   categoryIds: {},
@@ -81,7 +82,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
 }) => {
   const transactionCollection = database.get<TransactionModel>("transactions");
   const { categories } = useCategoryContext();
-  const { user, handleLogout } = useAuthContext();
+  const { user } = useAuthContext();
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [searchText, setSearchText] = useState("");
@@ -137,7 +138,6 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
         const baseConditions: Q.Clause[] = [];
 
         if (!user) {
-          handleLogout();
           return;
         } else {
           baseConditions.push(Q.where("user_id", user.id));
@@ -276,7 +276,6 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
   const createTransaction = async (transaction: CreateTransactionInterface) => {
     try {
       if (!user) {
-        handleLogout();
         return;
       }
 
@@ -361,6 +360,39 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
     setFilters(filtersInitialValues);
     setSearchText("");
   }, []);
+
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        // 1. Verifica se é a notificação da nossa automação
+        if (
+          response.notification.request.content.categoryIdentifier ===
+          "TRANSACAO_BANCARIA"
+        ) {
+          // 2. Verifica se o usuário apertou "Salvar"
+          if (response.actionIdentifier === "SALVAR_TRANSACAO") {
+            const data = response.notification.request.content.data as {
+              value: number;
+              bank: string;
+              isRevenue: boolean;
+            };
+
+            const { value, bank, isRevenue } = data;
+
+            // Chama a função do próprio contexto!
+            createTransaction({
+              description: `Auto: ${bank.includes("nu") ? "Nubank" : "Banco"}`,
+              value: value,
+              typeId: isRevenue ? 1 : 2,
+              categoryId: "1", // O ideal no futuro é colocar o ID da categoria "A Revisar"
+            });
+          }
+        }
+      },
+    );
+
+    return () => subscription.remove();
+  }, [createTransaction]);
 
   return (
     <TransactionContext.Provider

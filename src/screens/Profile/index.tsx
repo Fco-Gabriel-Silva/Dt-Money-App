@@ -1,5 +1,5 @@
 import { Text } from "@/components/Text";
-import { View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { HeaderProfile } from "./HeaderProfile";
 import { useAuthContext } from "@/context/auth.context";
 import clsx from "clsx";
@@ -9,6 +9,8 @@ import { PrivateStackParamsList } from "@/routes/PrivateRoutes";
 import { Input } from "@/components/Input";
 import { colors } from "@/styles/colors";
 import { SafeAreaView } from "react-native-safe-area-context";
+import RNAndroidNotificationListener from "react-native-android-notification-listener";
+import { Alert } from "react-native";
 
 export const Profile = () => {
   const { user } = useAuthContext();
@@ -16,7 +18,11 @@ export const Profile = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-background-primary">
-      <View className="flex-1 bg-background-primary">
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
+        showsVerticalScrollIndicator={false}
+      >
         <HeaderProfile avatarUrl={user?.avatarUrl} />
 
         <View className="flex-1 px-10 pt-20 gap-8">
@@ -71,6 +77,42 @@ export const Profile = () => {
               </Input>
             </View>
           </View>
+
+          <View>
+            <Text className="text-gray-500 text-lg font-sans mb-2">
+              Automação Bancária
+            </Text>
+            <AppButton
+              mode="outline"
+              iconName="sync"
+              onPress={async () => {
+                const status =
+                  await RNAndroidNotificationListener.getPermissionStatus();
+                if (status !== "authorized") {
+                  Alert.alert(
+                    "Atenção",
+                    "Para o Zap Money ler seus Pix e pagamentos, precisamos que você autorize a leitura de notificações na próxima tela.",
+                    [
+                      { text: "Cancelar", style: "cancel" },
+                      {
+                        text: "Autorizar",
+                        onPress: () =>
+                          RNAndroidNotificationListener.requestPermission(),
+                      },
+                    ],
+                  );
+                } else {
+                  Alert.alert(
+                    "Sucesso",
+                    "A automação já está ativada e escutando os bancos!",
+                  );
+                }
+              }}
+            >
+              Ativar Leitor de Notificações
+            </AppButton>
+          </View>
+
           <AppButton
             onPress={() => navigation.navigate("ProfileEdit")}
             className="mt-4"
@@ -78,7 +120,7 @@ export const Profile = () => {
             Editar
           </AppButton>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };

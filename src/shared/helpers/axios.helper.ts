@@ -1,10 +1,10 @@
 import { AxiosInstance } from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 import { IAuthenticateResponse } from "../interfaces/https/authenticate-response";
 
 export const addTokenToRequest = (axiosInstance: AxiosInstance) => {
   axiosInstance.interceptors.request.use(async (config: any) => {
-    const userData = await AsyncStorage.getItem("dt-money-user");
+    const userData = await SecureStore.getItemAsync("dt-money-user");
 
     if (userData) {
       const { token } = JSON.parse(userData) as IAuthenticateResponse;
