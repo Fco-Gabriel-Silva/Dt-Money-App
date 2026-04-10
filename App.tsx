@@ -22,6 +22,32 @@ import {
   getFCMToken,
 } from "@/shared/services/firebase/notifications";
 import messaging from "@react-native-firebase/messaging";
+import "@/shared/services/notifications/bank-listener.service";
+import * as Notifications from "expo-notifications";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
+
+// 2. Cria os botões "Salvar" e "Descartar"
+Notifications.setNotificationCategoryAsync("TRANSACAO_BANCARIA", [
+  {
+    identifier: "SALVAR_TRANSACAO",
+    buttonTitle: "Salvar",
+    options: { opensAppToForeground: true },
+  },
+  {
+    identifier: "DESCARTAR",
+    buttonTitle: "Ignorar",
+    options: { isDestructive: true, opensAppToForeground: false },
+  },
+]);
 
 export default function App() {
   const [fontsLoaded] = useFonts({
