@@ -6,8 +6,8 @@ module.exports = function withNotificationListener(config) {
     const mainApplication = androidManifest.manifest.application[0];
 
     // ==========================================
-    // MÁGICA NOVA: Resolve o conflito do allowBackup
-    // Diz para o Android usar a regra do nosso App e ignorar a da biblioteca
+    // MANTEMOS APENAS A RESOLUÇÃO DO CONFLITO
+    // Isso diz ao Android para usar o seu allowBackup e ignorar o da lib
     // ==========================================
     const currentReplace = mainApplication.$["tools:replace"] || "";
     if (!currentReplace.includes("android:allowBackup")) {
@@ -16,42 +16,8 @@ module.exports = function withNotificationListener(config) {
         : "android:allowBackup";
     }
 
-    // Adiciona o serviço de escuta nativo do Android
-    if (!mainApplication.service) {
-      mainApplication.service = [];
-    }
-
-    // Evita duplicar o serviço se rodar o prebuild duas vezes
-    const serviceExists = mainApplication.service.some(
-      (s) =>
-        s.$["android:name"] ===
-        "com.reactnativenotificationlistener.RNNotificationListenerService",
-    );
-
-    if (!serviceExists) {
-      mainApplication.service.push({
-        $: {
-          "android:name":
-            "com.reactnativenotificationlistener.RNNotificationListenerService",
-          "android:label": "@string/app_name",
-          "android:permission":
-            "android.permission.BIND_NOTIFICATION_LISTENER_SERVICE",
-          "android:exported": "true",
-        },
-        "intent-filter": [
-          {
-            action: [
-              {
-                $: {
-                  "android:name":
-                    "android.service.notification.NotificationListenerService",
-                },
-              },
-            ],
-          },
-        ],
-      });
-    }
+    // REMOVEMOS a parte do mainApplication.service.push(...)
+    // porque a biblioteca já faz isso sozinha internamente.
 
     return config;
   });

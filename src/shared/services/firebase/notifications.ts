@@ -1,9 +1,22 @@
 import messaging from "@react-native-firebase/messaging";
-import { Alert } from "react-native";
+import { Alert, Platform, PermissionsAndroid } from "react-native";
 import * as Device from "expo-device";
-import { Platform } from "react-native";
 
 export async function requestUserPermission() {
+  if (Platform.OS === "android" && Platform.Version >= 33) {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+    );
+
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      console.log("✅ [Android] Permissão nativa concedida.");
+      return true;
+    } else {
+      console.log("❌ [Android] Permissão negada pelo usuário.");
+      return false;
+    }
+  }
+
   const authStatus = await messaging().requestPermission();
   const enabled =
     authStatus === messaging.AuthorizationStatus.AUTHORIZED ||

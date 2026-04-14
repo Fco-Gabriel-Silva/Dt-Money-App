@@ -363,13 +363,22 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
 
   useEffect(() => {
     const subscription = Notifications.addNotificationResponseReceivedListener(
-      (response) => {
+      async (response) => {
+        const notificationId = response.notification.request.identifier;
+
         // 1. Verifica se é a notificação da nossa automação
         if (
           response.notification.request.content.categoryIdentifier ===
           "TRANSACAO_BANCARIA"
         ) {
-          // 2. Verifica se o usuário apertou "Salvar"
+          // 2. Ação: Se o usuário apertou "Ignorar"
+          if (response.actionIdentifier === "DESCARTAR") {
+            // Remove a notificação da tela silenciosamente
+            await Notifications.dismissNotificationAsync(notificationId);
+            return; // Encerra a execução por aqui
+          }
+
+          // 3. Ação: Se o usuário apertou "Salvar"
           if (response.actionIdentifier === "SALVAR_TRANSACAO") {
             const data = response.notification.request.content.data as {
               value: number;
@@ -379,13 +388,22 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
 
             const { value, bank, isRevenue } = data;
 
-            // Chama a função do próprio contexto!
-            createTransaction({
-              description: `Auto: ${bank.includes("nu") ? "Nubank" : "Banco"}`,
-              value: value,
-              typeId: isRevenue ? 1 : 2,
-              categoryId: "1", // O ideal no futuro é colocar o ID da categoria "A Revisar"
-            });
+            try {
+              // Chama a função do próprio contexto com o await!
+              await createTransaction({
+                description: `Auto: ${bank.includes("nu") ? "Nubank" : "Banco"}`,
+                value: value,
+                typeId: isRevenue ? 1 : 2,
+                categoryId: "1osVwiTptR782CBD", // Mantido o seu ID fixo
+              });
+
+              // Se a criação der certo (não cair no catch), fecha a notificação
+              await Notifications.dismissNotificationAsync(notificationId);
+            } catch (error) {
+              console.error("Falha ao salvar transação automática:", error);
+              // Como deu erro, a linha do dismissNotificationAsync não é executada,
+              // e a notificação continua presa na tela para você tentar de novo.
+            }
           }
         }
       },
