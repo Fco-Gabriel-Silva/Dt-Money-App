@@ -388,21 +388,25 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
 
             const { value, bank, isRevenue } = data;
 
-            try {
-              // Chama a função do próprio contexto com o await!
-              await createTransaction({
-                description: `Auto: ${bank.includes("nu") ? "Nubank" : "Banco"}`,
-                value: value,
-                typeId: isRevenue ? 1 : 2,
-                categoryId: "1osVwiTptR782CBD", // Mantido o seu ID fixo
-              });
+            const categoryToUse = categories.find(
+              (c) => c.name.toLowerCase() === "a revisar",
+            );
 
-              // Se a criação der certo (não cair no catch), fecha a notificação
-              await Notifications.dismissNotificationAsync(notificationId);
-            } catch (error) {
-              console.error("Falha ao salvar transação automática:", error);
-              // Como deu erro, a linha do dismissNotificationAsync não é executada,
-              // e a notificação continua presa na tela para você tentar de novo.
+            if (categoryToUse) {
+              try {
+                await createTransaction({
+                  description: `Auto: ${bank.includes("nu") ? "Nubank" : "Banco"}`,
+                  value: value,
+                  typeId: isRevenue ? 1 : 2,
+                  categoryId: categoryToUse.id, // <-- Usa o ID dinâmico encontrado
+                });
+
+                await Notifications.dismissNotificationAsync(notificationId);
+              } catch (error) {
+                console.error("Falha ao salvar transação automática:", error);
+              }
+            } else {
+              console.warn("Categoria 'A Revisar' não foi encontrada!");
             }
           }
         }
@@ -410,7 +414,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
     );
 
     return () => subscription.remove();
-  }, [createTransaction]);
+  }, [createTransaction, categories]);
 
   return (
     <TransactionContext.Provider

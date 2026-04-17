@@ -6,7 +6,7 @@ import Checkbox from "expo-checkbox";
 import { TouchableOpacity, View } from "react-native";
 
 export const CategoryFilter = () => {
-  const { categories } = useCategoryContext();
+  const { visibleCategories } = useCategoryContext();
   const { filters, handleCategoryFilter } = useTransactionContext();
 
   const handleChangeCategory = (categoryId: number | string) => {
@@ -18,7 +18,7 @@ export const CategoryFilter = () => {
       <Text className="text-base font-normal mb-5 text-gray-600">
         Categorias
       </Text>
-      {categories.map(({ id, name }) => (
+      {visibleCategories.map(({ id, name }) => (
         <TouchableOpacity
           onPress={() => handleChangeCategory(id)}
           key={`category-${id}`}
