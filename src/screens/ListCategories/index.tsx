@@ -14,7 +14,7 @@ import { CategoryItem } from "./CategoryItem";
 import { useCategoryContext } from "@/context/category.context";
 
 export const ListCategories = () => {
-  const { categories } = useCategoryContext();
+  const { visibleCategories } = useCategoryContext();
   const { openBottomSheet } = useBottomSheetContext();
 
   return (
@@ -35,7 +35,7 @@ export const ListCategories = () => {
           </View>
         </View>
         <FlatList
-          data={categories}
+          data={visibleCategories}
           keyExtractor={(item) => `category-${item.id}`}
           renderItem={({ item }) => <CategoryItem category={item} />}
           showsVerticalScrollIndicator={false}

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "dt-money-app",
-    "slug": "dt-money-app",
+    "name": "Zap Money",
+    "slug": "zap-money",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/logo-icon.png",
@@ -16,13 +16,15 @@
       "supportsTablet": true
     },
     "android": {
+      "permissions": ["android.permission.POST_NOTIFICATIONS"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/logo-icon.png",
         "backgroundColor": "#121214"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.dtmoneyapp"
+      "package": "com.sertanustecnologia.zapmoney",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/logo-icon.png"
@@ -48,7 +50,11 @@
           "imageWidth": 200
         }
       ],
-      "@lovesworking/watermelondb-expo-plugin-sdk-52-plus"
+      "@lovesworking/watermelondb-expo-plugin-sdk-52-plus",
+      "@react-native-firebase/app",
+      "@react-native-firebase/messaging",
+      "expo-secure-store",
+      "./plugins/withNotificationListener.js"
     ],
     "extra": {
       "eas": {

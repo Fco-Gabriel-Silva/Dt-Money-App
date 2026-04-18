@@ -10,12 +10,14 @@ import {
 import * as authService from "@/shared/services/dt-money/auth.service";
 import * as userService from "@/shared/services/dt-money/user.service";
 import { IUser } from "@/shared/interfaces/user-interface";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { IAuthenticateResponse } from "@/shared/interfaces/https/authenticate-response";
 import { UpdateUserRequest } from "@/shared/interfaces/https/update-user-request";
 import { Alert } from "react-native";
 import { database } from "@/databases";
 import { hasUnsyncedChanges } from "@nozbe/watermelondb/sync";
+import * as SecureStore from "expo-secure-store";
+import { dtMoneyApi } from "@/shared/api/dt-money";
+import { deleteFCMToken } from "@/shared/services/firebase/notifications";
 
 type AuthContextType = {
   user: IUser | null;
@@ -38,30 +40,36 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
 
   const handleAuthenticate = async (userData: FormLoginParams) => {
     const { token, user } = await authService.authenticate(userData);
-    await AsyncStorage.setItem(
+
+    // Usa o SecureStore no lugar do AsyncStorage
+    await SecureStore.setItemAsync(
       "dt-money-user",
       JSON.stringify({ user, token }),
     );
+
+    dtMoneyApi.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     setUser(user);
     setToken(token);
   };
 
   const handleRegister = async (formData: FormRegisterParams) => {
     const { token, user } = await authService.registerUser(formData);
-    await AsyncStorage.setItem(
+
+    // Usa o SecureStore no lugar do AsyncStorage
+    await SecureStore.setItemAsync(
       "dt-money-user",
       JSON.stringify({ user, token }),
     );
+
+    dtMoneyApi.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     setUser(user);
     setToken(token);
   };
 
   const handleLogout = async () => {
     try {
-      // 1. Verifica se existem dados presos no celular
       const hasPendingChanges = await hasUnsyncedChanges({ database });
 
-      // 2. Trava de segurança!
       if (hasPendingChanges) {
         Alert.alert(
           "Atenção: Sincronização Pendente",
@@ -71,11 +79,36 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
         return;
       }
 
+      if (user) {
+        try {
+          await userService.updateUser({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            password: user.password,
+            phone: user.phone || "",
+            avatarUrl: user.avatarUrl || "",
+            os: null,
+            model: null,
+            deviceToken: null,
+          });
+        } catch (error: any) {
+          console.error(
+            "🛑 ERRO DO BACKEND AO LIMPAR TOKEN:",
+            error.response?.data || error.message,
+          );
+        }
+      }
+
+      await deleteFCMToken();
+
       await database.write(async () => {
         await database.unsafeResetDatabase();
       });
 
-      await AsyncStorage.clear();
+      await SecureStore.deleteItemAsync("dt-money-user");
+      delete dtMoneyApi.defaults.headers.common["Authorization"];
+
       setToken(null);
       setUser(null);
     } catch (error) {
@@ -84,9 +117,15 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
   };
 
   const restoreUserSession = async () => {
-    const userData = await AsyncStorage.getItem("dt-money-user");
+    // Lê os dados criptografados do cofre
+    const userData = await SecureStore.getItemAsync("dt-money-user");
+
     if (userData) {
       const { token, user } = JSON.parse(userData) as IAuthenticateResponse;
+
+      // Essencial: Injeta o token na API ao restaurar a sessão!
+      dtMoneyApi.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
       setUser(user);
       setToken(token);
     }
@@ -101,7 +140,7 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
       if (token) {
         setUser(userUpdated);
 
-        await AsyncStorage.setItem(
+        await SecureStore.setItemAsync(
           "dt-money-user",
           JSON.stringify({ user: userUpdated, token }),
         );
@@ -114,6 +153,12 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
   const deleteUser = async (id: number) => {
     try {
       await userService.deleteUser(id);
+
+      // Limpa os dados de acesso do cofre
+      await SecureStore.deleteItemAsync("dt-money-user");
+
+      delete dtMoneyApi.defaults.headers.common["Authorization"];
+
       setToken(null);
       setUser(null);
     } catch (error) {
@@ -141,6 +186,5 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
 
 export const useAuthContext = () => {
   const context = useContext(AuthContext);
-
   return context;
 };

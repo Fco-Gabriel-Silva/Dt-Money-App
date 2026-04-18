@@ -26,7 +26,7 @@ export const SelectCategoryModal: FC<Props> = ({
   onSelect,
 }) => {
   const [showModal, setShowModal] = useState(false);
-  const { categories } = useCategoryContext();
+  const { categories, visibleCategories } = useCategoryContext();
   const { openBottomSheet } = useBottomSheetContext();
   const handleModal = () => setShowModal((prevState) => !prevState);
 
@@ -71,7 +71,7 @@ export const SelectCategoryModal: FC<Props> = ({
                 Selecione uma categoria
               </Text>
               <FlatList
-                data={categories}
+                data={visibleCategories}
                 keyExtractor={(item) => `category-${item.id}`}
                 renderItem={({ item }) => (
                   <TouchableOpacity

@@ -7,6 +7,7 @@ import {
   useEffect,
   useMemo,
   useState,
+  useRef,
 } from "react";
 import { CreateTransactionInterface } from "@/shared/interfaces/https/create-transaction-request";
 import { Transaction } from "@/shared/interfaces/transaction";
@@ -23,7 +24,8 @@ import { TransactionModel } from "@/databases/model/transactionModel";
 import { Q } from "@nozbe/watermelondb";
 import { syncWithBackend } from "@/databases/sync";
 import { useAuthContext } from "./auth.context";
-import { useNavigation } from "@react-navigation/native";
+import * as Notifications from "expo-notifications";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const filtersInitialValues = {
   categoryIds: {},
@@ -81,7 +83,7 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
 }) => {
   const transactionCollection = database.get<TransactionModel>("transactions");
   const { categories } = useCategoryContext();
-  const { user, handleLogout } = useAuthContext();
+  const { user } = useAuthContext();
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [searchText, setSearchText] = useState("");
@@ -137,7 +139,6 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
         const baseConditions: Q.Clause[] = [];
 
         if (!user) {
-          handleLogout();
           return;
         } else {
           baseConditions.push(Q.where("user_id", user.id));
@@ -276,7 +277,6 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
   const createTransaction = async (transaction: CreateTransactionInterface) => {
     try {
       if (!user) {
-        handleLogout();
         return;
       }
 
@@ -361,6 +361,128 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
     setFilters(filtersInitialValues);
     setSearchText("");
   }, []);
+
+  const lastNotificationResponse = Notifications.useLastNotificationResponse();
+
+  // 1. Cadeado Rápido (RAM): Impede as 4 execuções no mesmo milissegundo
+  const processedRAM = useRef<Set<string>>(new Set());
+
+  // 2. Trava de Re-render: Impede o React de rodar de novo ao atualizar a lista na Home
+  const coldStartHandled = useRef(false);
+
+  const handleNotificationAction = useCallback(
+    async (response: Notifications.NotificationResponse) => {
+      const notificationId = response.notification.request.identifier;
+
+      // CADEADO 1: Se já passou por aqui neste exato milissegundo, barramos IMEDIATAMENTE!
+      if (processedRAM.current.has(notificationId)) return;
+      processedRAM.current.add(notificationId);
+
+      try {
+        // CADEADO 2: O Caderninho (HD) - Evita reviver Pix se o app for reiniciado
+        const storedIds = await AsyncStorage.getItem("processed_notifications");
+        const processedSet = storedIds
+          ? new Set<string>(JSON.parse(storedIds))
+          : new Set<string>();
+
+        if (processedSet.has(notificationId)) return;
+
+        // Anota no Caderninho permanentemente
+        processedSet.add(notificationId);
+        await AsyncStorage.setItem(
+          "processed_notifications",
+          JSON.stringify(Array.from(processedSet).slice(-50)),
+        );
+
+        if (
+          response.notification.request.content.categoryIdentifier ===
+          "TRANSACAO_BANCARIA"
+        ) {
+          if (response.actionIdentifier === "DESCARTAR") {
+            await Notifications.dismissNotificationAsync(notificationId);
+            return;
+          }
+
+          if (response.actionIdentifier === "SALVAR_TRANSACAO") {
+            const data = response.notification.request.content.data as {
+              value: number;
+              bank: string;
+              isRevenue: boolean;
+            };
+            const { value, bank, isRevenue } = data;
+
+            const categoryToUse = categories.find(
+              (c) => c.name.toLowerCase() === "a revisar",
+            );
+
+            if (categoryToUse) {
+              try {
+                await createTransaction({
+                  description: `Auto: ${bank.includes("nu") ? "Nubank" : "Banco"}`,
+                  value: value,
+                  typeId: isRevenue ? 1 : 2,
+                  categoryId: categoryToUse.id,
+                });
+
+                await Notifications.dismissNotificationAsync(notificationId);
+              } catch (error) {
+                console.error("Falha ao salvar transação automática:", error);
+                // Destranca os cadeados para o usuário poder tentar de novo
+                processedRAM.current.delete(notificationId);
+                processedSet.delete(notificationId);
+                await AsyncStorage.setItem(
+                  "processed_notifications",
+                  JSON.stringify(Array.from(processedSet).slice(-50)),
+                );
+              }
+            } else {
+              console.warn("Categoria 'A Revisar' não foi encontrada!");
+              processedRAM.current.delete(notificationId);
+              processedSet.delete(notificationId);
+              await AsyncStorage.setItem(
+                "processed_notifications",
+                JSON.stringify(Array.from(processedSet).slice(-50)),
+              );
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Erro na memória do Vigia", err);
+      }
+    },
+    [createTransaction, categories],
+  );
+
+  // Ouvinte 1: App Aberto/Minimizado
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      handleNotificationAction,
+    );
+    return () => subscription.remove();
+  }, [handleNotificationAction]);
+
+  // Ouvinte 2: App Fechado (Cold Start) - AGORA BLINDADO CONTRA RE-RENDERS
+  useEffect(() => {
+    if (lastNotificationResponse && !coldStartHandled.current) {
+      coldStartHandled.current = true; // Marca que já atendeu essa notificação ao abrir
+      handleNotificationAction(lastNotificationResponse);
+    }
+  }, [lastNotificationResponse, handleNotificationAction]);
+
+  // 4. Ouvinte 1: Se o app já estava Aberto ou Minimizado
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      handleNotificationAction,
+    );
+    return () => subscription.remove();
+  }, [handleNotificationAction]);
+
+  // 5. Ouvinte 2: Se o app estava TOTALMENTE FECHADO (Cold Start)
+  useEffect(() => {
+    if (lastNotificationResponse) {
+      handleNotificationAction(lastNotificationResponse);
+    }
+  }, [lastNotificationResponse, handleNotificationAction]);
 
   return (
     <TransactionContext.Provider

@@ -7,6 +7,7 @@ import {
   useContext,
   useState,
   useEffect,
+  useMemo,
 } from "react";
 import { UpdateCategoryRequest } from "@/shared/interfaces/https/update-category-request";
 import { database } from "@/databases";
@@ -19,6 +20,7 @@ type CategoryContextType = {
   refreshCategories: () => Promise<void>;
   fetchCategories: () => Promise<void>;
   categories: TransactionCategory[];
+  visibleCategories: TransactionCategory[];
   createCategory: (data: CreateCategoryRequest) => Promise<void>;
   updateCategory: (data: UpdateCategoryRequest) => Promise<void>;
   deleteCategory: (id: number | string) => Promise<void>;
@@ -32,13 +34,18 @@ export const CategoryContextProvider: FC<PropsWithChildren> = ({
   const categoryCollection = database.get<TransactionCategoryModel>(
     "transaction_categories",
   );
-  const { user, handleLogout } = useAuthContext();
+  const { user } = useAuthContext();
 
   const [categories, setCategories] = useState<TransactionCategory[]>([]);
 
+  const visibleCategories = useMemo(() => {
+    return categories.filter(
+      (category) => category.name.toLowerCase() !== "a revisar",
+    );
+  }, [categories]);
+
   useEffect(() => {
     if (!user) {
-      handleLogout();
       return;
     }
 
@@ -62,7 +69,6 @@ export const CategoryContextProvider: FC<PropsWithChildren> = ({
   const refreshCategories = async () => {
     try {
       if (!user) {
-        handleLogout();
         return;
       }
 
@@ -167,6 +173,7 @@ export const CategoryContextProvider: FC<PropsWithChildren> = ({
       value={{
         fetchCategories,
         categories,
+        visibleCategories,
         createCategory,
         refreshCategories,
         updateCategory,
